@@ -74,6 +74,7 @@ function App() {
                     <Route path='/school-user-profile/:id' element={<SchoolProtected><UserProfile/></SchoolProtected>}/>
 
                     {/* Admin Routes */}
+                    <Route path='/admin/dashboard' element={<AdminProtected><JobList/></AdminProtected>}/>
                     <Route path='/admin/user-list' element={<AdminProtected><UserList/></AdminProtected>}/>
                     <Route path='/admin/school-list' element={<AdminProtected><SchoolList/></AdminProtected>}/>
                     <Route path='/admin/job-list' element={<AdminProtected><JobList/></AdminProtected>}/>

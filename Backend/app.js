@@ -38,7 +38,7 @@ const corsOptions = {
 };
 
 
-app.use(cors(corsOptions)); // Use the configured CORS options
+app.use(cors()); // Use the configured CORS options
 app.use('/uploads', express.static('uploads'));
 
 // Routes

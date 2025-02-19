@@ -35,8 +35,10 @@ export default function Login() {
         e.preventDefault()
 
         try {
-            // Send login request to backend
+            // Send login request to backend            
             const response = await api.post('/auth/login', formData);
+            console.log(response.data);
+            
             toast.success("User Logged In");
 
             const user = response.data.user;

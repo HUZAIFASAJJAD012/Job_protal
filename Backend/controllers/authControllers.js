@@ -4,16 +4,16 @@ import userModel from "../models/userModel.js";
 import adminModel from "../models/adminModel.js";
 import {School} from "../models/schoolModel.js";
 const login = async (req, res, next) => {
+
     const { email, password } = req.body;
 
     try {
         // First, check in adminModel to see if the user is an admin
         const existingAdmin = await adminModel.findOne({ email });
-
+  
         if (existingAdmin) {
-            // If admin is found, check if the password is valid
-            const isPasswordValid = await bcrypt.compare(password, existingAdmin.password);
-
+            // If admin is found, check if the password is valid            
+        const isPasswordValid =  bcrypt.compare(password,existingAdmin.password);
             if (!isPasswordValid) {
                 return res.status(400).json({ message: "Invalid password" });
             }

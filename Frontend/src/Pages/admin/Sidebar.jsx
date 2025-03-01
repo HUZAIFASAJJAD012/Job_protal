@@ -31,7 +31,7 @@ const Sidebar = () => {
                     </div>
                     <ul>
                         <li className="mb-4">
-                            <Link to="/dashboard" className="hover:text-gray-400 text-lg">Dashboard</Link>
+                            <Link to="/admin/dashboard" className="hover:text-gray-400 text-lg">Dashboard</Link>
                         </li>
                         <li className="mb-4">
                             <Link to="/admin/user-list" className="hover:text-gray-400 text-lg">Users</Link>

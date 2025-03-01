@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Determine the base URL based on the environment
 const baseURL = process.env.NODE_ENV === 'production'
-  ? 'http://localhost:8000/api'  // Production base URL
+  ? 'http://localhost:8000'  // Production base URL
   : 'http://localhost:8000';     // Development base URL
 
 // Create a new instance of Axios

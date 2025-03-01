@@ -10,7 +10,7 @@ import Rating from './routes/rating.js';
 import {Server} from 'socket.io';
 import {createServer} from "http";
 import massageRoute from './routes/massages.js';
-
+import path from "path"
 dotenv.config();
 const app = express();
 const port = process.env.PORT || '8000';
@@ -27,16 +27,10 @@ const connect = async () => {
 
 // Middleware
 app.use(express.json());
+const _dirname=path.dirname("")
 
-// CORS configuration
-const corsOptions = {
-    origin: [
-        'http://54.175.124.76',  // Allow requests from your frontend production domain
-        'http://localhost:3000'   // Allow requests from your local frontend during development
-    ],
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-};
-
+const buildpath=path.join(_dirname,"../Frontend/build")
+app.use(express.static(buildpath));
 
 app.use(cors()); // Use the configured CORS options
 app.use('/uploads', express.static('uploads'));

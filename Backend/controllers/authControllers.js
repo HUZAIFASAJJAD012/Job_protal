@@ -4,8 +4,9 @@ import userModel from "../models/userModel.js";
 import adminModel from "../models/adminModel.js";
 import {School} from "../models/schoolModel.js";
 const login = async (req, res, next) => {
-
+    
     const { email, password } = req.body;
+    console.log(email,password);
 
     try {
         // First, check in adminModel to see if the user is an admin

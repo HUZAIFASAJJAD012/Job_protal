@@ -25,6 +25,7 @@ export default function SchoolLogin() {
         try {
             // Send login request to backend
             const response = await api.post('/auth/school/login', formData)
+            
             toast.success("User Logged In");
             const user = response.data.user;
             dispatch({type: "UserLoggedIn", payload: user});

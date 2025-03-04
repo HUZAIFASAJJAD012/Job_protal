@@ -144,7 +144,7 @@ export default function Login() {
                                         Job seeker
                                     </Button>
                                 </Link>
-                                <Link to="/user-registration">
+                                <Link to="/school-registration">
                                     <Button
                                         type="button"
                                         variant="outline"

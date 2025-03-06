@@ -4,24 +4,20 @@ import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { ScrollArea } from "../../components/ui/scroll-area";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
+import {DropdownMenu, DropdownMenuContent,
+DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 import { Smile, Paperclip, Image, Send, Check, ChevronDown, Search } from "lucide-react";
 import Header from "./Header";
 import api from "../../Utils/Axios"; // Assuming the axios file is in the root level
-
 const SchoolChat = () => {
   const [conversations, setConversations] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [message, setMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Fetch Conversations
+// Fetch Conversations
   useEffect(() => {
     const fetchConversations = async () => {
       try {
@@ -33,8 +29,7 @@ const SchoolChat = () => {
     };
     fetchConversations();
   }, []);
-
-  // Fetch Messages for Active Chat
+// Fetch Messages for Active Chat
   useEffect(() => {
     if (!activeChatId) return;
 
@@ -48,12 +43,10 @@ const SchoolChat = () => {
     };
     fetchMessages();
   }, [activeChatId]);
-
-  // Handle Send Message
+// Handle Send Message
   const sendMessage = async () => {
     if (!message.trim() || !activeChatId) return;
-
-    try {
+try {
       const newMessage = {
         chatId: activeChatId,
         content: message.trim(),
@@ -65,13 +58,11 @@ const SchoolChat = () => {
       console.error("Error sending message:", error);
     }
   };
-
-  // Filtered Conversations
+// Filtered Conversations
   const filteredConversations = conversations.filter((chat) =>
     chat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  return (
+return (
     <div className="flex h-screen flex-col">
       {/* Navigation */}
       <Header />
@@ -107,7 +98,6 @@ const SchoolChat = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
           <ScrollArea className="h-[calc(100vh-8rem)] pr-1">
             <div className="mt-7 space-y-3">
               {filteredConversations.map((chat) => (
@@ -152,8 +142,7 @@ const SchoolChat = () => {
             </div>
           </ScrollArea>
         </aside>
-
-        {/* Chat Area */}
+  {/* Chat Area */}
         <main className="flex flex-1 flex-col bg-white px-6">
           {/* Chat Header */}
           <div className="flex items-center justify-between bg-[#ECF0FA] px-6 py-2.5 rounded-t-xl">
@@ -179,8 +168,7 @@ const SchoolChat = () => {
               Close Chat
             </Button>
           </div>
-
-          {/* Messages */}
+   {/* Messages */}
           <ScrollArea className="flex-1 px-4">
             <div className="space-y-6 py-4">
               {chatMessages.map((msg) => (
@@ -225,8 +213,7 @@ const SchoolChat = () => {
               ))}
             </div>
           </ScrollArea>
-
-          {/* Message Input */}
+ {/* Message Input */}
           <div className="p-4">
             <Card className="flex items-center border-[#D3E0F3] gap-4 p-3 rounded-xl">
               <Input
@@ -261,5 +248,4 @@ const SchoolChat = () => {
     </div>
   );
 };
-
 export default SchoolChat;

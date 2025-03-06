@@ -6,3 +6,4 @@ export const logoutRoute = `${host}/auth/logout`;
 export const allUsersRoute = `${host}/user/get_all_users`;
 export const sendMessageRoute = `${host}/messages/addmsg`;
 export const recieveMessageRoute = `${host}/messages/getmsg`;
+export const conversationsRoute = `${host}/conversations`;

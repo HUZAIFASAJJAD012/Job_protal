@@ -11,6 +11,8 @@ import {Server} from 'socket.io';
 import {createServer} from "http";
 import massageRoute from './routes/massages.js';
 import path from "path"
+import conversations from './routes/conversations.js';
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT || '8000';
@@ -42,6 +44,7 @@ app.use('/payments', payment);
 app.use('/auth', authentication);
 app.use('/rating', Rating);
 app.use('/messages', massageRoute);
+app.use('/conversations', conversations);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -63,7 +66,7 @@ const io = new Server(server, {
             'http://54.175.124.76',  // Allow requests from your frontend production domain
             'http://localhost:3000'   // Allow requests from your local frontend during development
         ],
-        credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+        credentials: true, // Allow credentials (cookies, authorization headers, etc.),
     },
 });
 

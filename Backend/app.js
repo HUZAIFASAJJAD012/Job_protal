@@ -9,9 +9,9 @@ import cors from 'cors';
 import Rating from './routes/rating.js';
 import {Server} from 'socket.io';
 import {createServer} from "http";
-import massageRoute from './routes/massages.js';
-import path from "path"
 import conversations from './routes/conversations.js';
+import messages from './routes/messages.js';
+import path from "path"
 
 dotenv.config();
 const app = express();
@@ -43,8 +43,10 @@ app.use('/school', school);
 app.use('/payments', payment);
 app.use('/auth', authentication);
 app.use('/rating', Rating);
-app.use('/messages', massageRoute);
+
+
 app.use('/conversations', conversations);
+app.use('/messages', messages);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -71,13 +73,39 @@ const io = new Server(server, {
 });
 
 // Socket.IO Connection Handling
+import Chat from './models/Chat.js';
+import Message from './models/Message.js';
+
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    // Handle incoming messages from users
-    socket.on('sendMessage', (messageData) => {
-        // Emit message to the specified receiver
-        io.to(messageData.receiverId).emit('receiveMessage', messageData);
+    // User joins their room (for private messaging)
+    socket.on('join', (userId) => {
+        socket.join(userId);
+        console.log(`User ${userId} joined their room`);
+    });
+
+    // Handle new messages
+    socket.on('sendMessage', async ({ senderId, receiverId, content }) => {
+        try {
+            // Check if chat already exists between these users
+            let chat = await Chat.findOne({ members: { $all: [senderId, receiverId] } });
+
+            // If no chat exists, create a new one
+            if (!chat) {
+                chat = new Chat({ members: [senderId, receiverId] });
+                await chat.save();
+            }
+
+            // Save the message in the database
+            const newMessage = new Message({ chatId: chat._id, sender: senderId, content });
+            await newMessage.save();
+
+            // Emit the message only to the receiver
+            io.to(receiverId).emit('receiveMessage', newMessage);
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
     });
 
     // Handle disconnection

@@ -1,112 +1,46 @@
-import chatService from '../services/chatService.js';
+import Chat from "../models/Chat.js";
+import { School } from "../models/schoolModel.js";
+import User from "../models/userModel.js";
 
-/**
- * Send a new chat message
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-export const sendMessage = async (req, res) => {
+export const getUserChats = async (req, res) => {
   try {
-    const senderId = req.user?.id; // Assuming senderId is fetched from req.user
-    const { receiverId } = req.body; // Receiver ID still comes from the request body
-    const { message } = req.body;
+    const userId = req.params.userId; // Get current user ID from params
 
-    // Validate required fields
-    if (!senderId || !receiverId || !message) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
+    const chats = await Chat.find({ "members.memberId": userId });
 
-    // Save the message
-    const savedMessage = await chatService.saveMessage({ senderId, receiverId, message });
+    // Fetch chat members (User or School)
+    const chatData = await Promise.all(
+      chats.map(async (chat) => {
+        const recipient = chat.members.find(
+          (member) => member.memberId.toString() !== userId
+        );
 
-    return res.status(201).json({ message: 'Message sent', data: savedMessage });
+        if (!recipient) {
+          return { _id: chat._id, recipientName: "Unknown", members: chat.members };
+        }
+
+        let recipientData;
+        if (recipient.memberType === "User") {
+          recipientData = await User.findById(recipient.memberId).select("firstName lastName");
+        } else if (recipient.memberType === "School") {
+          recipientData = await School.findById(recipient.memberId).select("schoolName");
+        }
+
+        return {
+          _id: chat._id,
+          recipientName: recipientData
+            ? recipientData.firstName
+              ? `${recipientData.firstName} ${recipientData.lastName}`
+              : recipientData.schoolName
+            : "Unknown",
+          members: chat.members,
+        };
+      })
+    );
+
+    res.json(chatData);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
-};
-
-/**
- * Fetch all messages between two users
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-export const getMessages = async (req, res) => {
-  try {
-    const userId1 = req.user?.id; // Assuming userId1 is fetched from req.user
-    const { userId2 } = req.query; // UserId2 comes from the query params
-
-    // Validate required fields
-    if (!userId1 || !userId2) {
-      return res.status(400).json({ error: 'User IDs are required' });
-    }
-
-    // Get messages
-    const messages = await chatService.getMessagesBetweenUsers(userId1, userId2);
-
-    return res.status(200).json({ data: messages });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
-};
-
-/**
- * Delete a specific chat message
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-export const deleteMessage = async (req, res) => {
-  try {
-    const { messageId } = req.params;
-
-    // Validate required fields
-    if (!messageId) {
-      return res.status(400).json({ error: 'Message ID is required' });
-    }
-
-    // Delete the message
-    const deletedMessage = await chatService.deleteMessage(messageId);
-
-    if (!deletedMessage) {
-      return res.status(404).json({ error: 'Message not found' });
-    }
-
-    return res.status(200).json({ message: 'Message deleted', data: deletedMessage });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
-};
-
-/**
- * Get conversation between two users
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-export const getConversation = async (req, res) => {
-  try {
-    const userId1 = req.user?.id; // Assuming userId1 is fetched from req.user
-    const { userId2 } = req.query; // UserId2 comes from the query params
-
-    // Validate required fields
-    if (!userId1 || !userId2) {
-      return res.status(400).json({ error: 'User IDs are required' });
-    }
-
-    // Get messages
-    const messages = await chatService.getMessagesBetweenUsers(userId1, userId2);
-
-    // Transform messages into conversation format
-    const conversation = messages.map((message) => ({
-      fromSelf: message.senderId === userId1,
-      message: message.message,
-      timestamp: message.timestamp,
-    }));
-
-    return res.status(200).json({ data: conversation });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Something went wrong' });
+    console.error("Error fetching chats:", error);
+    res.status(500).json({ error: "Error fetching chats" });
   }
 };

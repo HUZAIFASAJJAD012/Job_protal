@@ -1,63 +1,61 @@
-import Messages from "../models/massageModel.js";
-import user from "../models/userModel.js"; // Using the user model from the new project
+import Message from '../models/Message.js';
+import Chat from '../models/Chat.js';
+import User from '../models/userModel.js';
+import { School } from '../models/schoolModel.js';
 
-export const getMessages = async (req, res, next) => {
-  try {
-    const { from, to } = req.body;
+// Send a message (Creates chat if not exists)
+export const sendMessage = async (req, res) => {
+    try {
+        const { sender, receiver, content } = req.body;
+        console.log(sender, receiver, content);
 
-    // Verify both users exist in the database
-    const fromUser = await user.findById(from);
-    const toUser = await user.findById(to);
+        // Validate sender and receiver
+        const senderExists = await User.findById(sender) || await School.findById(sender);
+        const receiverExists = await User.findById(receiver) || await School.findById(receiver);
 
-    if (!fromUser || !toUser) {
-      return res.status(404).json({ message: "One or both users not found" });
+        if (!senderExists || !receiverExists) {
+            return res.status(404).json({ error: "Sender or receiver not found" });
+        }
+
+        // Check if a chat exists
+        let chat = await Chat.findOne({
+            members: { $all: [sender, receiver] }
+        });
+
+        // If no chat exists, create a new one
+        if (!chat) {
+            chat = new Chat({
+                members: [sender, receiver]
+            });
+            await chat.save();
+        }
+
+        // Create and save the message
+        const newMessage = new Message({
+            chatId: chat._id,
+            sender,
+            content
+        });
+
+        await newMessage.save();
+
+        res.status(201).json({
+            message: newMessage,
+            chatCreated: !chat._id, // True if new chat was created
+            chat
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-
-    // Fetch messages between the two users
-    const messages = await Messages.find({
-      users: { $all: [from, to] },
-    }).sort({ updatedAt: 1 });
-
-    // Transform the message data
-    const projectedMessages = messages.map((msg) => ({
-      fromSelf: msg.sender.toString() === from,
-      message: msg.message.text,
-    }));
-
-    // Send the response
-    res.json(projectedMessages);
-  } catch (ex) {
-    console.error("Error in getMessages:", ex);
-    next(ex);
-  }
 };
 
-export const addMessage = async (req, res, next) => {
-  try {
-    const { from, to, message } = req.body;
-
-    // Verify both users exist in the database
-    const fromUser = await user.findById(from);
-    const toUser = await user.findById(to);
-
-    if (!fromUser || !toUser) {
-      return res.status(404).json({ message: "One or both users not found" });
+// Get all messages in a chat
+export const getMessages = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const messages = await Message.find({ chatId }).sort({ createdAt: 1 });
+        res.status(200).json(messages);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-
-    // Create a new message
-    const data = await Messages.create({
-      message: { text: message },
-      users: [from, to],
-      sender: from,
-    });
-
-    if (data) {
-      return res.json({ msg: "Message added successfully." });
-    } else {
-      return res.status(500).json({ msg: "Failed to add message to the database" });
-    }
-  } catch (ex) {
-    console.error("Error in addMessage:", ex);
-    next(ex);
-  }
 };

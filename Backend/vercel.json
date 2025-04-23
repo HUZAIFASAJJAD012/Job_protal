@@ -3,7 +3,7 @@
     "name": "hiring_lawyer",
     "builds": [
         {
-            "src": "app.js",
+            "src": "./app.js",
             "use": "@vercel/node"
         }
     ],

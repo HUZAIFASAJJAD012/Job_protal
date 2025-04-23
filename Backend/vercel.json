@@ -1,9 +1,11 @@
 {
+    "installCommand": "npm install",
+
     "version": 2,
     "name": "hiring_lawyer",
     "builds": [
         {
-            "src": "app.js",
+            "src": "./app.js",
             "use": "@vercel/node"
         }
     ],

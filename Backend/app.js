@@ -34,13 +34,12 @@ const connect = async () => {
         console.error('Mongo error:', err);
     }
 };
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+app.use(express.json());
+const __dirname = path.dirname("");
 const buildPath = path.join(__dirname, '../Frontend/build');
 app.use(express.static(buildPath));
 
-app.use(express.json());
+
 app.use('/uploads', express.static('uploads'));
 
 const allowedOrigins = process.env.FRONTEND_URL?.split(',') || [];

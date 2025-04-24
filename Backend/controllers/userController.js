@@ -4,7 +4,7 @@ import user from "../models/userModel.js";
 import Profile from "../models/profileModel.js";
 import JobApplied from "../models/appliedJob.js"
 import createError from "../utils/error.js";
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 class UserController {
 

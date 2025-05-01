@@ -32,6 +32,18 @@ const JobList = () => {
             setCurrentPage(page);
         }
     };
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                await api.delete(`/school/delete/${id}`);
+                setJobs(jobs.filter(job => job._id !== id));
+                alert("job deleted successfully.");
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                alert("Failed to delete user.");
+            }
+        }
+    };
 
     return (
         <div className="flex">
@@ -69,7 +81,7 @@ const JobList = () => {
                                         {new Date(job.coverFrom).toLocaleDateString()} - {new Date(job.coverTo).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 text-center space-x-4">
-                                        <button className="text-red-600 hover:text-blue-800 transition duration-300 ease-in-out transform hover:scale-105">
+                                        <button  onClick={() => handleDelete(job._id)}className="text-red-600 hover:text-blue-800 transition duration-300 ease-in-out transform hover:scale-105">
                                             Delete
                                         </button>
                                     </td>

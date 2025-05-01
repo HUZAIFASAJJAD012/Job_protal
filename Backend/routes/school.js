@@ -23,5 +23,8 @@ router.get('/get/applied-candidate', schoolController.getappliedcandidate);
 router.post('/register', emailAndPasswordValidation, validate, schoolController.register);
 router.post('/update/:id', updatecheck, schoolController.update);
 router.post('/add/job', schoolController.addJob);
+router.delete('/delete/:id', schoolController.deleteDocById);
+router.delete('/scdelete/:id', schoolController.deletescById);
+
 
 export default router;

@@ -189,6 +189,7 @@ class UserController {
     };
 
     static deleteDocById = async (req, res, next) => {
+        console.log("Hit DELETE /delete/:id", req.params.id);
         try {
             const result = await user.findByIdAndDelete(req.params.id);
 

@@ -31,6 +31,20 @@ const SchoolList = () => {
       setCurrentPage(page);
     }
   };
+  const handleDelete = async (id) => {
+    console.log("Deleting user with ID:", id); // Add this line
+    if (window.confirm("Are you sure you want to delete this user?")) {
+        try {
+            const response = await api.delete(`/school/scdelete/${id}`);
+            console.log("Delete response:", response.data);
+            setSchools(schools.filter(schools => schools._id !== id));
+            alert("school deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            alert("Failed to delete user.");
+        }
+    }
+};
 
   return (
     <div className="flex">
@@ -64,7 +78,7 @@ const SchoolList = () => {
                   <td className="px-6 py-4 text-gray-700">{school.country}</td>
                   <td className="px-6 py-4 text-gray-700">{school.phone}</td>
                   <td className="px-6 py-4 text-center space-x-4">
-                    <button className="text-red-600 hover:text-red-800 transition duration-300 ease-in-out transform hover:scale-105">
+                    <button onClick={() => handleDelete(school._id)} className="text-red-600 hover:text-red-800 transition duration-300 ease-in-out transform hover:scale-105">
                       Delete
                     </button>
                   </td>

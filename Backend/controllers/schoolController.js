@@ -161,7 +161,26 @@ class schoolController {
             next(createError(500, 'Internal Server Error'));
         }
     };
-
+    static deleteDocById = async (req, res, next) => {
+        console.log("DELETE request received for ID:", req.params.id);
+        try {
+            const result = await Job.findByIdAndDelete(req.params.id); // use your correct model
+            if (!result) return res.status(404).json({ message: "Not found" });
+            res.status(200).json({ message: "Deleted successfully" });
+        } catch (error) {
+            next(error);
+        }
+    };
+    static deletescById = async (req, res, next) => {
+        console.log("DELETE request received for ID:", req.params.id);
+        try {
+            const result = await School.findByIdAndDelete(req.params.id); // use your correct model
+            if (!result) return res.status(404).json({ message: "Not found" });
+            res.status(200).json({ message: "Deleted successfully" });
+        } catch (error) {
+            next(error);
+        }
+    };
 
     static getappliedcandidate = async (req, res) => {
         try {

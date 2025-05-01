@@ -33,7 +33,20 @@ const UserList = () => {
       setCurrentPage(page);
     }
   };
-
+  const handleDelete = async (id) => {
+    console.log("Deleting user with ID:", id); // Add this line
+    if (window.confirm("Are you sure you want to delete this user?")) {
+        try {
+            const response = await api.delete(`/user/delete/${id}`);
+            console.log("Delete response:", response.data);
+            setUsers(users.filter(users => users._id !== id));
+            alert("school deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            alert("Failed to delete user.");
+        }
+    }
+};
   return (
     <div className="flex">
       {/* Sidebar */}
@@ -77,7 +90,7 @@ const UserList = () => {
                   </td>
                   <td className="px-6 py-4 text-center space-x-4">
 
-                    <button className="text-red-600 hover:text-red-800 transition duration-300 ease-in-out transform hover:scale-105">
+                    <button  onClick={() => handleDelete(user._id)} className="text-red-600 hover:text-red-800 transition duration-300 ease-in-out transform hover:scale-105">
                       Delete
                     </button>
                   </td>

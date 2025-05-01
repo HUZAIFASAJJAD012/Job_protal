@@ -27,7 +27,7 @@ export const handleStripeWebhook = async (req, res) => {
 
       const exists = await School.findOne({ email: parsed.email });
       if (!exists) {
-        const newSchool = new User(parsed);
+        const newSchool = new School(parsed);
         await newSchool.save();
         console.log(`✅ School created after payment: ${parsed.email}`);
       }

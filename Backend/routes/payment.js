@@ -6,7 +6,6 @@ const router = express.Router();
 
 // Route to create Stripe checkout session
 router.post('/create-checkout-session',createSchoolPaymentSession );
-
 router.post(
     '/webhook',
     express.raw({ type: 'application/json' }), // raw body for Stripe

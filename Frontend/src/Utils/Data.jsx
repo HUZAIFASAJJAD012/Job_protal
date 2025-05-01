@@ -23,8 +23,8 @@ const teamMembers = [
 ];
 
 // Dynamically set the server IP based on the environment
-const server_ip = process.env.NODE_ENV === 'production'
-  ? 'http://localhost:800/api'  // For production
-  : 'http://localhost:800';       // For development
+// Dynamically set the server IP based on the environment
+const server_ip = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 
 export { ContactInfo, teamMembers, server_ip}

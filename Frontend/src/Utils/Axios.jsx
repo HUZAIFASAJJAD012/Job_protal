@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
 const api = axios.create({
-  baseURL,
+  baseURL: 'http://13.61.151.194:8000', // Your EC2 server IP
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',

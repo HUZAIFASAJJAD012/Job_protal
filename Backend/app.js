@@ -36,7 +36,7 @@ const connect = async () => {
 };
 app.use(express.json());
 const __dirname = path.dirname("");
-const buildPath = path.join(__dirname, '../Frontend/build');
+const buildPath = path.join(__dirname, './build');
 app.use(express.static(buildPath));
 
 

@@ -1,9 +1,15 @@
 import express from 'express';
-import PaymentController from '../controllers/paymentController.js'; // Ensure this path is correct
+import { createSchoolPaymentSession } from '../controllers/paymentController.js';
+import { handleStripeWebhook } from '../controllers/paymentWebhook.js';
 
 const router = express.Router();
 
-router.post('/checkout', PaymentController.checkout);
-router.get('/getTransiction', PaymentController.getTransaction)
+// Route to create Stripe checkout session
+router.post('/create-checkout-session',createSchoolPaymentSession );
 
+router.post(
+    '/webhook',
+    express.raw({ type: 'application/json' }), // raw body for Stripe
+    handleStripeWebhook
+  );
 export default router;

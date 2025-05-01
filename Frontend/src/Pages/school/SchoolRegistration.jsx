@@ -40,15 +40,21 @@ export default function SchoolRegistration() {
         e.preventDefault();
         setErrors([]); // Clear previous errors
         try {
-            const response = await api.post("/school/register", formData);
-            toast.success("School Registered SuccessFully")
-            navigate("/school-login")
+            const response = await api.post("/api/payment/create-checkout-session", {
+                schoolData: formData,
+            });
+    
+            if (response.data.url) {
+                window.location.href = response.data.url; // Redirect to Stripe
+            }
         } catch (error) {
             const apiErrors = error.response?.data?.errors || [];
-            setErrors(apiErrors.map(err => err.msg)); // Extract error messages
+            setErrors(apiErrors.map(err => err.msg));
             console.log(error);
+            toast.error("Something went wrong during payment setup.");
         }
     };
+    
 
     return (
         <div className="min-h-screen flex items-center justify-center">

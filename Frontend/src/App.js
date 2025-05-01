@@ -30,6 +30,7 @@ import SchoolList from "./Pages/admin/SchoolList";
 import AdminProtected from "./Security/AdminProtected";
 import SchoolChat from "./Pages/school/SchoolChat";
 import UserProfile from "./Pages/school/UserProfile";
+import PaymentSuccess from "./Pages/payment-success";
 
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
                            element={<SchoolProtected><JobsAppliedList/></SchoolProtected>}/>
                     <Route path='/school-add-job' element={<SchoolProtected><AddJob/></SchoolProtected>}/>
                     <Route path='/school-chat' element={<SchoolProtected><UserChat/></SchoolProtected>}/>
+                    <Route path='/payment-success' element={<PaymentSuccess/>}/>
                     <Route path='/school-user-profile/:id' element={<SchoolProtected><UserProfile/></SchoolProtected>}/>
 
                     {/* Admin Routes */}

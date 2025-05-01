@@ -10,7 +10,7 @@ import { createServer } from 'http';
 import user from './routes/user.js';
 import school from './routes/school.js';
 import authentication from './routes/authentication.js';
-import payment from './routes/payment.js';
+import paymentRoutes from './routes/payment.js';
 import Rating from './routes/rating.js';
 import conversations from './routes/conversations.js';
 import messages from './routes/messages.js';
@@ -19,7 +19,6 @@ import Chat from './models/Chat.js';
 import Message from './models/Message.js';
 
 dotenv.config();
-
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -57,7 +56,6 @@ app.use(cors({
 
 app.use('/user', user);
 app.use('/school', school);
-app.use('/payments', payment);
 app.use('/auth', authentication);
 app.use('/rating', Rating);
 app.use('/conversations', conversations);
@@ -75,10 +73,10 @@ app.use((err, req, res, next) => {
 
 const server = createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: allowedOrigins,
-        credentials: true,
-    },
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
 });
 
 io.on('connection', (socket) => {

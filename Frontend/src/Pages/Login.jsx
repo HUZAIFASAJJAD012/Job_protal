@@ -1,17 +1,18 @@
-import React, { useContext, useState, useEffect } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Card, CardContent } from "../components/ui/card"
-import { Link, useNavigate } from "react-router-dom"
+import React, { useContext, useState, useEffect } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card, CardContent } from "../components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../Utils/Axios";
-import { Store } from "../Utils/Store"
+import { Store } from "../Utils/Store";
 import { toast } from "react-toastify";
 
 export default function Login() {
     const { state, dispatch } = useContext(Store);
     const { UserInfo } = state;
     const navigate = useNavigate();
+
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
@@ -25,20 +26,23 @@ export default function Login() {
             if (UserInfo.isAdmin) {
                 navigate("/admin/dashboard");
             } else if (UserInfo.isUser) {
+                console.log("userjobs");
                 navigate("/user/job-listing");
+            } else {
+                console.log("schooljobs");
+                navigate("/school-jobs");
             }
         }
-    }, [UserInfo, navigate]);  // Add UserInfo and navigate as dependencies to the useEffect
+    }, [UserInfo, navigate]);  // Make sure to add dependencies
 
     // Handle form submission
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         try {
             // Send login request to backend            
             const response = await api.post('/auth/login', formData);
-            console.log(response.data);
-            
+            console.log(response.data); 
             toast.success("User Logged In");
 
             const user = response.data.user;
@@ -48,12 +52,12 @@ export default function Login() {
             if (user.isAdmin) {
                 navigate("/admin/dashboard");
             } else if (user.isUser) {
+                console.log("userjobs2");
                 navigate("/user/job-listing");
             } else {
-                // If neither, you can set a default redirect or handle it differently
+                console.log("schooljobs2");
                 toast.error("Unknown role or no role assigned.");
-                // Optionally, you can redirect to an error page or login page again.
-                navigate("/login");
+                navigate("/school-jobs");
             }
         } catch (error) {
             // Handle errors such as incorrect credentials

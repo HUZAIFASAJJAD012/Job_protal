@@ -5,8 +5,10 @@ import { Store } from "../../Utils/Store";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
 
-const socket = io("http://localhost:8000", { transports: ["websocket"] }); // Ensure this matches your backend URL
-
+const socket = io("http://localhost:8000", {
+  transports: ["websocket"],
+  withCredentials: true, // 👈 critical for CORS when cookies are used
+});
 const UserChat = () => {
   const [chats, setChats] = useState([]);
   const [activeChat, setActiveChat] = useState(null);

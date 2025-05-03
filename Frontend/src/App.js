@@ -62,7 +62,7 @@ function App() {
 
                     {/* School Routes */}
                     <Route path='/school-registration' element={<SchoolRegistration/>}/>
-                    <Route path='/school-login' element={<SchoolLogin/>}/>
+                    <Route path='/school-login' element={<Login/>}/>
                     <Route path='/school-jobs' element={<SchoolProtected><SchoolJobs/></SchoolProtected>}/>
                     <Route path='/school-profile' element={<SchoolProtected><SchoolProfile/></SchoolProtected>}/>
                     <Route path='/school-settings' element={<SchoolProtected><SchoolSettings/></SchoolProtected>}/>

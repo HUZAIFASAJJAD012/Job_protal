@@ -20,18 +20,18 @@ export default function SchoolLogin() {
 
     // Handle form submission
     const handleSubmit = async (e) => {
-        e.preventDefault()
 
+        e.preventDefault()
+        
         try {
             // Send login request to backend
-            const response = await api.post('/auth/school/login', formData)
-            
+            const response = await api.post('/auth/school/login', formData)            
             toast.success("User Logged In");
             const user = response.data.user;
             dispatch({type: "UserLoggedIn", payload: user});
             if (user.isAdmin) {
                 navigate("/admin/dashboard");
-            } else {
+            } else {                
                 navigate("/school-jobs");
             }
         } catch (error) {

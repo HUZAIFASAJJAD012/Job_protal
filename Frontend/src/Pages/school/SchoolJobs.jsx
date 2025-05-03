@@ -17,6 +17,7 @@ import {Store} from "../../Utils/Store";
 import api from "../../Utils/Axios";
 
 export default function SchoolJobs() {
+    
     const [message, setMessage] = useState("");
     const {state} = useContext(Store);
     const {UserInfo} = state;

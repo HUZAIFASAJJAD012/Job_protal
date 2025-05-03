@@ -44,20 +44,20 @@ const __dirname = path.dirname(__filename);
 const buildPath = path.join(__dirname, '../Frontend/build');
 
 // Stripe webhook route (must use raw body)
-app.post('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
 // CORS configuration
 const allowedOrigins = process.env.FRONTEND_URL.split(',');
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
 }));
+app.post('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
 // JSON and static middleware
 app.use(express.json());

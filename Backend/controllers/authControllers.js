@@ -64,7 +64,7 @@ const login = async (req, res, next) => {
 
         // If not found in userModel, check if it's a school
         const existingSchool = await School.findOne({ email });
-
+        
         if (existingSchool) {
             const isPasswordValid = await bcrypt.compare(password, existingSchool.password);
 

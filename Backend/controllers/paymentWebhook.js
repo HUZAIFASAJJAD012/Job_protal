@@ -24,11 +24,13 @@ export const handleStripeWebhook = async (req, res) => {
 
     try {
       const parsed = JSON.parse(session.metadata.jsonData);
-
+      console.log(parsed);
       const exists = await School.findOne({ email: parsed.email });
       if (!exists) {
         const newSchool = new School(parsed);
         await newSchool.save();
+        console.log("newSchool"+newSchool);
+        
         console.log(`✅ School created after payment: ${parsed.email}`);
       }
     } catch (e) {

@@ -70,7 +70,7 @@ export const createJobApplicationSession = async (req, res) => {
                       product_data: {
                           name: `Job Application Fee for Job ID: ${job_id}`,
                       },
-                      unit_amount: 500, // Example fee (500 cents = $5)
+                      unit_amount: 1500, // Example fee (500 cents = $5)
                   },
                   quantity: 1,
               },

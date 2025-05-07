@@ -1,5 +1,5 @@
 import express from 'express';
-import { createSchoolPaymentSession } from '../controllers/paymentController.js';
+import { createJobApplicationSession, createRenewalSession, createSchoolPaymentSession, getSubscriptionStatus } from '../controllers/paymentController.js';
 import { handleStripeWebhook } from '../controllers/paymentWebhook.js';
 
 const router = express.Router();
@@ -11,4 +11,9 @@ router.post(
     express.raw({ type: 'application/json' }), // raw body for Stripe
     handleStripeWebhook
   );
+  router.post('/create-renewal-session', createRenewalSession);
+
+  router.get('/subscription/:schoolId', getSubscriptionStatus);
+
+router.post("/job-application",createJobApplicationSession)
 export default router;

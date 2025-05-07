@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "nodemon app",
     "start": "node app",
-    "create-admin": "node createAdmin.js"
+    "create-admin": "node createAdmin.js",
+    "update-subscriptions": "node utils/updateSubscriptions.js"
+
   },
   "keywords": [],
   "author": "",

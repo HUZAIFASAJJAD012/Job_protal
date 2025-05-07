@@ -36,24 +36,25 @@ export default function SchoolRegistration() {
         setFormData({...formData, [field]: value});
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrors([]); // Clear previous errors
-        try {
-            const response = await api.post("/api/payment/create-checkout-session", {
-                schoolData: formData,
-            });
-    
-            if (response.data.url) {
-                window.location.href = response.data.url; // Redirect to Stripe
-            }
-        } catch (error) {
-            const apiErrors = error.response?.data?.errors || [];
-            setErrors(apiErrors.map(err => err.msg));
-            console.log(error);
-            toast.error("Something went wrong during payment setup.");
+    // Updated section in SchoolRegistration.jsx
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors([]); // Clear previous errors
+    try {
+        const response = await api.post("/api/payment/create-checkout-session", {
+            schoolData: formData,
+        });
+
+        if (response.data.url) {
+            window.location.href = response.data.url; // Redirect to Stripe
         }
-    };
+    } catch (error) {
+        const apiErrors = error.response?.data?.errors || [];
+        setErrors(apiErrors.map(err => err.msg));
+        console.log(error);
+        toast.error("Something went wrong during payment setup.");
+    }
+};
     
 
     return (

@@ -8,7 +8,7 @@ const jobSchema = new mongoose.Schema({
     coverTo: {type: Date, required: true},
     payPerDay: {type: Number, required: false},
     payPerHour: {type: Number, required: false},
-    currency: {type: String, default: "USD"},
+    currency: {type: String, default: "QAR"},
     timeStart: {type: String, required: false},
     timeEnd: {type: String, required: false},
     paymentMethod: {type: String, required: false},

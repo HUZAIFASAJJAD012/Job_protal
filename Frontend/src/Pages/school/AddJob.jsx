@@ -16,7 +16,7 @@ export default function AddJob() {
         coverTo: "",
         payPerDay: "",
         payPerHour: "",
-        currency: "USD",
+        currency: "QAR",
         timeStart: "",
         timeEnd: "",
         paymentMethod: "Bank Transfer",
@@ -144,7 +144,7 @@ export default function AddJob() {
                                 <label className="text-sm text-[#666666]">Currency</label>
                                 <input
                                     name="currency"
-                                    placeholder="Currency (default: USD)"
+                                    placeholder="Currency (default: QAR)"
                                     className="w-full h-11 bg-[#E6E6E6]"
                                     value={formData.currency}
                                     onChange={handleChange}

@@ -26,27 +26,30 @@ const JobDetail = () => {
 
     // Handle Apply Job
     const handleApplyJob = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
         setLoading(true);
         setError(null);
         setSuccess(false);
-
+    
         try {
             // Make Axios request to apply for the job
-            const response = await api.post('/user/apply-job', {
+            const response = await api.post('/api/payment/job-application', {
                 user_id: UserInfo.id, // Send the user ID from context
                 job_id: job._id, // Send the job ID
             });
-
-                setSuccess(true);
-                toast.success("Applied SuccessFully")
-
+    
+            if (response.data.url) {
+                // Redirect to Stripe payment session URL
+                window.location.href = response.data.url;
+            }
+    
         } catch (err) {
             setError(err.response?.data?.error || "Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="flex h-screen flex-col bg-gray-50">

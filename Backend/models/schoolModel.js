@@ -16,6 +16,17 @@ const SchoolSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    subscriptionActive: {
+        type: Boolean,
+        default: false
+      },
+      subscriptionExpiryDate: {
+        type: Date
+      },
+      subscriptionHistory: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Payment'
+      }]
 }, {timestamps: true});
 
 // Pre-save hook to hash password before saving

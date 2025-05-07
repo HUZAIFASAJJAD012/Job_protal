@@ -1,41 +1,52 @@
+// models/paymentModel.js
 import mongoose from 'mongoose';
 
-const { Schema } = mongoose;
-
-const paymentSchema = new Schema({
-  userId: {
-    type: Schema.Types.ObjectId,
+const paymentSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
-  lawyerId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Lawyer',
-    required: true,
+  type: {
+    type: String,
+    enum: ['school', 'job_application'],
+    required: true
   },
   amount: {
     type: Number,
-    required: true,
+    required: true
   },
   currency: {
     type: String,
-    default: 'usd', // Default to USD, but can be changed dynamically
+    default: 'qar'
+  },
+  paymentDate: {
+    type: Date,
+    default: Date.now
+  },
+  expiryDate: {
+    type: Date
+  },
+  stripeSessionId: {
+    type: String,
+    required: true,
+    unique: true
   },
   status: {
     type: String,
-    enum: ['Pending', 'Completed', 'Failed'],
-    default: 'Pending',
+    enum: ['completed', 'failed', 'refunded'],
+    default: 'completed'
   },
-  receiptUrl: {
-    type: String, // To store the URL for payment receipt from Stripe
-  },
-  transactionId: {
-    type: String, // To store the unique transaction ID from Stripe
-  },
-  description: {
-    type: String, // Description of what the payment is for
-  },
+  metadata: {
+    type: Object
+  }
 }, { timestamps: true });
+
+// Method to check if subscription is expired
+paymentSchema.methods.isExpired = function() {
+  if (!this.expiryDate) return false;
+  return new Date() > this.expiryDate;
+};
 
 const Payment = mongoose.model('Payment', paymentSchema);
 

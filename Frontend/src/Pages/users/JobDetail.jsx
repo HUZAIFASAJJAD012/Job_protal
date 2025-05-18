@@ -16,6 +16,7 @@ const JobDetail = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    
     if (loading) {
         return <p>Loading job details...</p>;
     }
@@ -50,6 +51,12 @@ const JobDetail = () => {
         }
     };
     
+    // Format job image URL
+    const jobImageUrl = job.jobImage 
+        ? `http://localhost:8000${job.jobImage}`
+        : job.image // Check if image property exists from previous component
+        ? job.image
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(job.schoolName || "School")}&background=random`;
 
     return (
         <div className="flex h-screen flex-col bg-gray-50">
@@ -62,12 +69,13 @@ const JobDetail = () => {
                     <Card className="bg-[#f7fcfc] p-4 shadow-sm border-gray-200" style={{ width: "100%" }}>
                         <div className="flex gap-4">
                             <div className="h-16 w-16 flex-shrink-0">
-                                <Avatar>
+                                <Avatar className="h-16 w-16">
                                     <AvatarImage
-                                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-01-01%20202231-FVjv9TGizfnSdARH7nPOukiU2MkI2b.png" // Placeholder for school logo
+                                        src={jobImageUrl}
                                         alt={job.schoolName}
+                                        className="object-cover"
                                     />
-                                    <AvatarFallback>{job.schoolName[0]}</AvatarFallback>
+                                    <AvatarFallback>{job.schoolName ? job.schoolName[0] : "J"}</AvatarFallback>
                                 </Avatar>
                             </div>
                             <div className="space-y-1">
@@ -81,7 +89,7 @@ const JobDetail = () => {
                             </div>
                         </div>
                     </Card>
-  {/* Success/Error Messages */}
+                    {/* Success/Error Messages */}
                     {success && <p className="text-green-500 text-center">You have successfully applied for this job!</p>}
                     {error && <p className="text-red-500 text-center">{error}</p>}
                     {/* Details Card */}
@@ -153,8 +161,6 @@ const JobDetail = () => {
                             {loading ? 'Applying...' : 'Apply for the Job'}
                         </Button>
                     </div>
-
-
 
                     {/* Payment Options */}
                     <div className="space-y-4 pt-2">

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import { Store } from "../../Utils/Store";
 import { useLocation } from "react-router-dom";
@@ -15,12 +15,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu';
-import api from "../../Utils/Axios"; // Adjust the import path as necessary
+import api from "../../Utils/Axios";
 
 // Socket connection setup
 const socket = io("http://localhost:8000", {
   transports: ["websocket"],
-  withCredentials: true  , // critical for CORS when cookies are used
+  withCredentials: true, // critical for CORS when cookies are used
 });
 
 const UserChat = () => {
@@ -37,6 +37,7 @@ const UserChat = () => {
   const location = useLocation();
   const { selectedUserId } = location.state || {};
   const [showChatView, setShowChatView] = useState(false);
+  const messagesEndRef = useRef(null);
 
   // Join user's socket room
   useEffect(() => {
@@ -44,6 +45,24 @@ const UserChat = () => {
       socket.emit("join", UserInfo.id);
     }
   }, [UserInfo?.id]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  // Fetch user's profile picture
+  const fetchUserProfile = async (userId) => {
+    try {
+      const { data } = await api.get(`/user/get_user_profile/${userId}`);
+      return data.profilePicture ? `http://localhost:8000${data.profilePicture}` : null;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+  };
 
   // Fetch user's conversations
   useEffect(() => {
@@ -77,18 +96,27 @@ const UserChat = () => {
               if (diffDays < 30) return `${diffDays} d ago`;
               return `${Math.floor(diffDays / 30)} mo ago`;
             };
+
+            // Get the other user's ID (not the current user)
+            const recipientId = chat.members.find(
+              (member) => member.toString() !== UserInfo.id.toString()
+            );
+            
+            // Fetch the recipient's profile picture
+            const profilePicture = await fetchUserProfile(recipientId);
               
             return {
               id: chat._id,
               name: chat.recipientName || "Unknown User", 
               message: lastMessage ? lastMessage.content : "Start a conversation",
               time: lastMessage ? getTimeAgo(lastMessage.createdAt) : getTimeAgo(chat.createdAt),
-              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`,
+              avatar: profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`,
               unread: isUnread,
               unreadCount: isUnread ? 5 : 0, // Replace with actual count
               read: !isUnread && lastMessage && lastMessage.sender === UserInfo.id,
               members: chat.members,
-              lastMessageTime: lastMessage ? lastMessage.createdAt : chat.createdAt
+              lastMessageTime: lastMessage ? lastMessage.createdAt : chat.createdAt,
+              recipientId: recipientId
             };
           } catch (error) {
             console.error("Error fetching messages for chat", error);
@@ -159,18 +187,22 @@ const UserChat = () => {
         return prevChats;
       });
       
+      // Fetch profile picture for new chat
+      const profilePicture = await fetchUserProfile(userId);
+      
       // Create UI data for the new chat
       const newChatData = {
         id: newChat._id,
         name: newChat.recipientName || "Unknown User",
         message: "Start a conversation",
         time: "just now",
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newChat.recipientName || "Unknown")}&background=random`,
+        avatar: profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(newChat.recipientName || "Unknown")}&background=random`,
         unread: false,
         unreadCount: 0,
         read: false,
         members: newChat.members,
-        lastMessageTime: new Date()
+        lastMessageTime: new Date(),
+        recipientId: userId
       };
       
       handleSelectChat(newChat._id, newChatData);
@@ -222,7 +254,7 @@ const UserChat = () => {
 
   // Listen for new messages via Socket.IO
   useEffect(() => {
-    socket.on("receive_message", (message) => {
+    const handleReceiveMessage = (message) => {
       // Check if this message is already in our state
       if (activeChat === message.conversationId) {
         setMessages((prev) => {
@@ -255,10 +287,12 @@ const UserChat = () => {
           return chat;
         });
       });
-    });
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
 
     return () => {
-      socket.off("receive_message"); // Clean up event listener
+      socket.off("receive_message", handleReceiveMessage);
     };
   }, [activeChat, UserInfo?.id]);
 
@@ -325,13 +359,20 @@ const UserChat = () => {
   };
 
   // Get UI data for a chat
-  const getChatUIData = (chat) => {
-    // This function would extract UI data for a chat from the chats array
-    // Since we're not maintaining a separate UI data array, this is a simple wrapper
+  const getChatUIData = async (chat) => {
+    // Get recipient ID (the other user, not the current user)
+    const recipientId = chat.members.find(
+      (member) => member.toString() !== UserInfo.id.toString()
+    );
+    
+    // Try to fetch profile picture
+    const profilePicture = await fetchUserProfile(recipientId);
+    
     return {
       id: chat._id,
       name: chat.recipientName || "Unknown User",
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`,
+      avatar: profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`,
+      recipientId: recipientId
     };
   };
 
@@ -376,31 +417,52 @@ const UserChat = () => {
                   <p className="text-sm text-gray-500 text-center py-4">Loading conversations...</p>
                 ) : getFilteredChats().length > 0 ? (
                   getFilteredChats().map((chat) => {
-                    // Determine if this chat has unread messages
-                    const isUnread = false; // Replace with logic to determine unread status
-                    const lastMessageTime = "5 min ago"; // Replace with actual logic
+                    // Check for cached profile info or fetch it
+                    const handleChatClick = async () => {
+                      const chatData = await getChatUIData(chat);
+                      handleSelectChat(chat._id, chatData);
+                    };
+                    
+                    // Get most recent message and time data
+                    const lastMessage = chat.lastMessage || "Start a conversation";
+                    const timeAgo = "5 min ago"; // This would be replaced with actual calculation
+                    const isUnread = false; // This would be determined by your message read status
                     
                     return (
                       <div
                         key={chat._id}
                         className="flex items-start gap-3 rounded-xl bg-white p-3 hover:bg-gray-50 min-h-[4.5rem] cursor-pointer"
-                        onClick={() => handleSelectChat(chat._id, getChatUIData(chat))}
+                        onClick={handleChatClick}
                       >
-                        <Avatar className="h-11 w-11 flex-shrink-0">
-                          <AvatarImage src={`https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`}/>
-                          <AvatarFallback>{(chat.recipientName || "?")[0]}</AvatarFallback>
-                        </Avatar>
+                        {/* Look for cached profile picture if available */}
+                        {chat.profilePicture ? (
+                          <Avatar className="h-11 w-11 flex-shrink-0">
+                            <AvatarImage 
+                              src={`http://localhost:8000${chat.profilePicture}`}
+                              className="object-cover"
+                            />
+                            <AvatarFallback>{(chat.recipientName || "?")[0]}</AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <Avatar className="h-11 w-11 flex-shrink-0">
+                            <AvatarImage 
+                              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`}
+                              className="object-cover"
+                            />
+                            <AvatarFallback>{(chat.recipientName || "?")[0]}</AvatarFallback>
+                          </Avatar>
+                        )}
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                             <div className="space-y-1">
                               <h3 className="text-sm font-medium">{chat.recipientName || "Unknown User"}</h3>
                               <p className="text-sm text-gray-500 truncate">
-                                {chat.lastMessage || "Start a conversation"}
+                                {lastMessage}
                               </p>
                             </div>
                             <div className="flex flex-col items-end gap-2 mr-2 ml-2">
                               <span className="text-xs text-gray-500">
-                                {lastMessageTime}
+                                {timeAgo}
                               </span>
                               {isUnread ? (
                                 <div
@@ -439,7 +501,7 @@ const UserChat = () => {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <Avatar className="h-10 w-10">
-                <AvatarImage src={activeChatData?.avatar} />
+                <AvatarImage src={activeChatData?.avatar} className="object-cover" />
                 <AvatarFallback>{activeChatData?.name[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -454,14 +516,14 @@ const UserChat = () => {
                 {messages.length > 0 ? (
                   messages.map((msg, index) => (
                     <div
-                      key={index}
+                      key={msg._id || index}
                       className={`flex ${
                         msg.sender === UserInfo.id ? "justify-end" : "justify-start"
                       }`}
                     >
                       {msg.sender !== UserInfo.id && (
                         <Avatar className="h-8 w-8 mr-2 flex-shrink-0">
-                          <AvatarImage src={activeChatData?.avatar} />
+                          <AvatarImage src={activeChatData?.avatar} className="object-cover" />
                           <AvatarFallback>{activeChatData?.name[0]}</AvatarFallback>
                         </Avatar>
                       )}
@@ -481,6 +543,7 @@ const UserChat = () => {
                     No messages yet. Start the conversation!
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
 

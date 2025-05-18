@@ -114,20 +114,24 @@ class UserController {
         }
     };
 
-    static getProfile = async (req, res) => {
-        try {
-            const { id } = req.params;
-            const profile = await Profile.findOne({ user: id });
+  static getProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-            if (!profile) {
-                return res.status(404).json({ message: "Profile not found" });
-            }
+        const profile = await Profile.findOne({ user: id })
+            .populate('user', 'firstName lastName email'); // populate user reference with selected fields
 
-            res.json(profile);
-        } catch (error) {
-            res.status(500).json({ message: "Server error" });
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
         }
-    };
+
+        res.json(profile);
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 
     static updateProfile = async (req, res) => {
         try {
@@ -174,7 +178,7 @@ class UserController {
         }
     };
 
-    static getAllProfiles = async (req, res, next) => {
+  static getAllProfiles = async (req, res, next) => {
         try {
             const result = await Profile.find();
 
@@ -186,7 +190,9 @@ class UserController {
             console.error("Error in getAllProfiles:", err);
             next(createError(500, "Internal Server Error"));
         }
-    };
+    }
+
+
 
     static deleteDocById = async (req, res, next) => {
         console.log("Hit DELETE /delete/:id", req.params.id);

@@ -56,7 +56,7 @@ export default function Login() {
                 navigate("/user/job-listing");
             } else {
                 console.log("schooljobs2");
-                toast.error("Unknown role or no role assigned.");
+               
                 navigate("/school-jobs");
             }
         } catch (error) {
@@ -143,7 +143,7 @@ export default function Login() {
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        className="w-full bg-[#C0DAB3] hover:bg-[#c8d9c9] text-black"
+                                        className="w-full bg-[#a4d18e] hover:bg-[#c8d9c9] text-black"
                                     >
                                         Job seeker
                                     </Button>

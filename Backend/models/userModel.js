@@ -60,6 +60,12 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+userSchema.virtual('name').get(function () {
+  return `${this.firstName} ${this.lastName || ''}`.trim();
+});
 
+// ✅ Include virtuals in JSON and Object outputs
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
 const userModel = mongoose.model('User', userSchema);
 export default userModel;

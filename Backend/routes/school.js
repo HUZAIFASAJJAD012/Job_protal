@@ -2,7 +2,7 @@ import express from 'express';
 import {emailAndPasswordValidation, validate} from "../utils/Validations.js";
 import schoolController from "../controllers/schoolController.js";
 import {check} from 'express-validator';
-
+import upload from "../utils/multerConfig.js";
 const updatecheck = [
     check('email')
         .isEmail().withMessage('Please enter a valid email address'),

@@ -20,7 +20,7 @@ import api from "../../Utils/Axios"; // Adjust the import path as necessary
 // Socket connection setup
 const socket = io("http://localhost:8000", {
   transports: ["websocket"],
-  withCredentials: true, // critical for CORS when cookies are used
+  withCredentials: true  , // critical for CORS when cookies are used
 });
 
 const UserChat = () => {

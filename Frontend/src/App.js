@@ -13,7 +13,6 @@ import Notifications from "./Pages/users/Notification";
 import JobListings from "./Pages/users/JobListing";
 import UserSettingUpdateForm from "./Pages/users/UserSettingsUpdate";
 import SchoolRegistration from "./Pages/school/SchoolRegistration";
-import SchoolLogin from "./Pages/school/SchoolLogin";
 import Profile from "./Pages/users/Profile";
 import SchoolProfile from "./Pages/school/SchoolProfile";
 import SchoolJobs from "./Pages/school/SchoolJobs";
@@ -37,6 +36,7 @@ import RenewSubscription from "./Pages/school/RenewSubscription";
 import SubscriptionProtected from "./Security/SubscriptionProtected";
 import RenewalSuccess from "./Pages/renewal-success";
 import RenewalCancelled from "./Pages/renewal-cancelled";
+import AdminPayments from "./Pages/admin/AdminPayments";
 
 function App() {
   return (
@@ -244,6 +244,7 @@ function App() {
               </AdminProtected>
             }
           />
+      <Route path='/admin/Payment' element={<AdminProtected><AdminPayments/></AdminProtected>}/>
 
           <Route path="*" element={<PageNotFound404 />} />
         </Routes>

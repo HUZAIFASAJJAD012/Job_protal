@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Mic, Paperclip, Send } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
-import { Card, CardContent } from "../../components/ui/card";
 import Header from "../users/Header";
 import { Link } from "react-router-dom";
 import api from "../../Utils/Axios";
 import { Store } from "../../Utils/Store"; // Assuming Store contains UserInfo
+import { server_ip } from "../../Utils/Data"; // <-- Your backend URL
 
 // Job Card Component
 const JobCard = ({
@@ -27,73 +25,91 @@ const JobCard = ({
   jobDurationDays,
   jobDurationType,
   timeStart,
-  timeEnd
-}) => (
-  <Link
-    to={{
-      pathname: `/user/job-detail`,
-    }}
-    state={{
-      job: {
-        _id,
-        title,
-        schoolName,
-        coverFrom,
-        coverTo,
-        payPerDay,
-        payPerHour,
-        currency,
-        description,
-        paymentMethod,
-        location,
-        qualifications,
-        backgroundChecks,
-        jobDurationDays,
-        jobDurationType,
-        timeStart,
-        timeEnd
-      }
-    }}
-  >
-    <div className="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm">
-      <div className="flex gap-4">
-        <div className="relative">
-          <Avatar className="h-14 w-14 rounded-full border-[1px] border-black">
-            <AvatarImage
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-01-01%20202231-FVjv9TGizfnSdARH7nPOukiU2MkI2b.png"
-              alt={schoolName}
-              className="object-cover"
-            />
-            <AvatarFallback>{schoolName[0]}</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="flex-1 space-y-1">
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-          <p className="text-gray-500 text-xs">{schoolName}</p>
-          <div className="space-y-1">
-            <p className="text-gray-500 text-xs">Cover from: {new Date(coverFrom).toLocaleDateString()}</p>
-            <p className="text-gray-500 text-xs">Cover to: {new Date(coverTo).toLocaleDateString()}</p>
-            <p className="text-gray-500 text-xs">
-              Pay: {payPerDay ? `${payPerDay} ${currency}/day` : `${payPerHour} ${currency}/hour`}
-            </p>
+  timeEnd,
+  profilePicture,  // Using profilePicture from backend
+}) => {
+  console.log("JobCard profilePicture prop:", profilePicture);
+
+  return (
+    <Link
+      to={{
+        pathname: `/user/job-detail`,
+      }}
+      state={{
+        job: {
+          _id,
+          title,
+          schoolName,
+          coverFrom,
+          coverTo,
+          payPerDay,
+          payPerHour,
+          currency,
+          description,
+          paymentMethod,
+          location,
+          qualifications,
+          backgroundChecks,
+          jobDurationDays,
+          jobDurationType,
+          timeStart,
+          timeEnd,
+          profilePicture,
+        },
+      }}
+    >
+      <div className="bg-white rounded-xl p-6 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer">
+        <div className="flex gap-4">
+          <div className="relative">
+            <Avatar className="h-14 w-14 rounded-full border-[1px] border-black">
+              <AvatarImage
+                src={
+                  profilePicture
+                    ? `${server_ip}${profilePicture}`
+                    : "https://via.placeholder.com/150"
+                }
+                alt={schoolName}
+                className="object-cover"
+              />
+              <AvatarFallback>{schoolName ? schoolName[0] : "?"}</AvatarFallback>
+            </Avatar>
           </div>
-          <p className="text-gray-600 font-semibold text-xs pt-0.5">{description}</p>
+          <div className="flex-1 space-y-1">
+            <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+            <p className="text-gray-500 text-xs">{schoolName}</p>
+            <div className="space-y-1">
+              <p className="text-gray-500 text-xs">
+                Cover from: {new Date(coverFrom).toLocaleDateString()}
+              </p>
+              <p className="text-gray-500 text-xs">
+                Cover to: {new Date(coverTo).toLocaleDateString()}
+              </p>
+              <p className="text-gray-500 text-xs">
+                Pay:{" "}
+                {payPerDay
+                  ? `${payPerDay} ${currency}/day`
+                  : `${payPerHour} ${currency}/hour`}
+              </p>
+            </div>
+            <p className="text-gray-600 font-semibold text-xs pt-0.5">{description}</p>
+          </div>
         </div>
       </div>
-    </div>
-  </Link>
-);
+    </Link>
+  );
+};
 
 export default function JobListings() {
   const { state } = useContext(Store);
-  const { UserInfo } = state; // Get the logged-in user's information
+  const { UserInfo } = state;
   const [jobsAvailable, setJobsAvailable] = useState([]);
   const [jobsApplied, setJobsApplied] = useState([]);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get("/school/get/job"); // Fetch all jobs
+        const response = await api.get("/school/get/job");
+        console.log("Jobs fetched:", response.data);
         setJobsAvailable(response.data || []);
       } catch (error) {
         console.error("Error fetching jobs:", error);
@@ -102,10 +118,10 @@ export default function JobListings() {
 
     const fetchAppliedCandidates = async () => {
       try {
-        const response = await api.get("/school/get/applied-candidate"); // Fetch all applied jobs
+        const response = await api.get("/school/get/applied-candidate");
         const allAppliedJobs = response.data || [];
 
-        // Filter applied jobs to only include those for the logged-in user
+        // Filter applied jobs for current user
         const filteredJobsApplied = allAppliedJobs.filter(
           (appliedJob) => appliedJob.user === UserInfo.id
         );
@@ -116,9 +132,16 @@ export default function JobListings() {
       }
     };
 
-    fetchJobs();
-    fetchAppliedCandidates();
+    if (UserInfo && UserInfo.id) {
+      fetchJobs();
+      fetchAppliedCandidates();
+    }
   }, [UserInfo]);
+
+  // Filter out jobs user has already applied for
+  const filteredJobsAvailable = jobsAvailable.filter(
+    (job) => !jobsApplied.some((appliedJob) => appliedJob.job === job._id)
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,28 +157,42 @@ export default function JobListings() {
               SEARCH JOB
             </Button>
           </Link>
+
+          {/* Jobs Available */}
           <section>
             <h2 className="text-lg font-semibold mb-3">Jobs Available</h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {jobsAvailable.map((job) => (
-                <JobCard key={job._id} {...job} />
-              ))}
+              {filteredJobsAvailable.length > 0 ? (
+                filteredJobsAvailable.map((job) => (
+                  <JobCard key={job._id} {...job} profilePicture={job.profilePicture} />
+                ))
+              ) : (
+                <p className="text-red-600 text-sm font-semibold">
+                  No available jobs at the moment or you have applied to all.
+                </p>
+              )}
             </div>
           </section>
 
+          {/* Jobs Applied */}
           <section>
             <h2 className="text-lg font-semibold mb-3">Jobs Applied</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {jobsApplied.length > 0 ? (
                 jobsApplied.map((appliedJob) => {
-                  // Find the job details by matching `appliedJob.job` with `jobsAvailable._id`
                   const jobDetails = jobsAvailable.find(
                     (job) => job._id === appliedJob.job
                   );
-                  return jobDetails ? <JobCard key={jobDetails._id} {...jobDetails} /> : null;
+                  return jobDetails ? (
+                    <JobCard
+                      key={jobDetails._id}
+                      {...jobDetails}
+                      profilePicture={jobDetails.profilePicture}
+                    />
+                  ) : null;
                 })
               ) : (
-                <p className="text-red-600 text-xl font-semibold">
+                <p className="text-red-600 text-sm font-semibold">
                   You haven't applied for any jobs yet.
                 </p>
               )}

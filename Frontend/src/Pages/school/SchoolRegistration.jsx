@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {Button} from "../../components/ui/button";
+import { useState } from "react";
+import { Button } from "../../components/ui/button";
 import {
     Select,
     SelectContent,
@@ -7,13 +7,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../../components/ui/select";
-import {Mail, Phone, User, Users} from 'lucide-react';
+import { Mail, Phone, User, Users, Eye, EyeOff } from "lucide-react";
 import api from "../../Utils/Axios";
-import {toast} from "react-toastify";
-import {useNavigate} from "react-router-dom";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function SchoolRegistration() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         schoolName: "",
         country: "",
@@ -23,39 +23,46 @@ export default function SchoolRegistration() {
         firstName: "",
         lastName: "",
         password: "",
+        confirmPassword: "",
         role: "",
     });
 
     const [errors, setErrors] = useState([]);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSelectChange = (field, value) => {
-        setFormData({...formData, [field]: value});
+        setFormData({ ...formData, [field]: value });
     };
 
-    // Updated section in SchoolRegistration.jsx
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors([]); // Clear previous errors
-    try {
-        const response = await api.post("/api/payment/create-checkout-session", {
-            schoolData: formData,
-        });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrors([]);
 
-        if (response.data.url) {
-            window.location.href = response.data.url; // Redirect to Stripe
+        if (formData.password !== formData.confirmPassword) {
+            setErrors(["Password and Confirm Password do not match."]);
+            return;
         }
-    } catch (error) {
-        const apiErrors = error.response?.data?.errors || [];
-        setErrors(apiErrors.map(err => err.msg));
-        console.log(error);
-        toast.error("Something went wrong during payment setup.");
-    }
-};
-    
+
+        try {
+            const response = await api.post("/api/payment/create-checkout-session", {
+                schoolData: formData,
+            });
+
+            if (response.data.url) {
+                window.location.href = response.data.url;
+            }
+        } catch (error) {
+            const apiErrors = error.response?.data?.errors || [];
+            setErrors(apiErrors.map((err) => err.msg));
+            console.log(error);
+            toast.error("Something went wrong during payment setup.");
+        }
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -91,7 +98,7 @@ const handleSubmit = async (e) => {
                                 onValueChange={(value) => handleSelectChange("country", value)}
                             >
                                 <SelectTrigger className="w-full h-11 bg-[#E6E6E6]">
-                                    <SelectValue placeholder="Select country"/>
+                                    <SelectValue placeholder="Select country" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
                                     <SelectItem value="Qatar">Qatar</SelectItem>
@@ -107,7 +114,7 @@ const handleSubmit = async (e) => {
                                 onValueChange={(value) => handleSelectChange("area", value)}
                             >
                                 <SelectTrigger className="w-full h-11 bg-[#E6E6E6]">
-                                    <SelectValue placeholder="Choose area"/>
+                                    <SelectValue placeholder="Choose area" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
                                     <SelectItem value="Doha">Doha</SelectItem>
@@ -122,7 +129,7 @@ const handleSubmit = async (e) => {
                         <div className="space-y-2 w-full">
                             <label className="text-sm text-[#666666]">Email</label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500"/>
+                                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                 <input
                                     name="email"
                                     type="email"
@@ -138,7 +145,7 @@ const handleSubmit = async (e) => {
                         <div className="space-y-2 w-full">
                             <label className="text-sm text-[#666666]">Phone Number</label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500"/>
+                                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                 <input
                                     name="phone"
                                     type="tel"
@@ -159,7 +166,7 @@ const handleSubmit = async (e) => {
                             <div className="space-y-2 w-full">
                                 <label className="text-sm text-[#666666]">First Name</label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500"/>
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                     <input
                                         name="firstName"
                                         placeholder="First name"
@@ -174,7 +181,7 @@ const handleSubmit = async (e) => {
                             <div className="space-y-2 w-full">
                                 <label className="text-sm text-[#666666]">Last Name</label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500"/>
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                     <input
                                         name="lastName"
                                         placeholder="Last name"
@@ -189,26 +196,54 @@ const handleSubmit = async (e) => {
                             <div className="space-y-2 w-full">
                                 <label className="text-sm text-[#666666]">Password</label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500"/>
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                     <input
                                         name="password"
                                         placeholder="Password"
-                                        className="w-full h-11 pl-10 bg-[#E6E6E6]"
+                                        type={showPassword ? "text" : "password"}
+                                        className="w-full h-11 pl-10 pr-10 bg-[#E6E6E6]"
                                         value={formData.password}
                                         onChange={handleChange}
                                         required
-                                        type="password"
                                     />
+                                    <span
+                                        className="absolute right-3 top-3 text-gray-600 cursor-pointer"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 w-full">
+                                <label className="text-sm text-[#666666]">Confirm Password</label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                                    <input
+                                        name="confirmPassword"
+                                        placeholder="Confirm password"
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        className="w-full h-11 pl-10 pr-10 bg-[#E6E6E6]"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                    <span
+                                        className="absolute right-3 top-3 text-gray-600 cursor-pointer"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </span>
                                 </div>
                             </div>
 
                             <div className="space-y-2 w-full">
                                 <label className="text-sm text-[#666666]">Your Role</label>
                                 <div className="relative">
-                                    <Users className="absolute left-3 top-3 h-4 w-4 text-gray-500"/>
+                                    <Users className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                     <input
                                         name="role"
-                                        placeholder="e.g principal"
+                                        placeholder="e.g. Principal"
                                         className="w-full h-11 pl-10 bg-[#E6E6E6]"
                                         value={formData.role}
                                         onChange={handleChange}
@@ -216,9 +251,7 @@ const handleSubmit = async (e) => {
                                     />
                                 </div>
                             </div>
-
                         </div>
-
                     </div>
 
                     <div className="flex items-center justify-between text-sm pt-4">
@@ -234,5 +267,5 @@ const handleSubmit = async (e) => {
                 </form>
             </div>
         </div>
-    )
+    );
 }

@@ -34,7 +34,7 @@ const Header = () => {
                         <Button variant="ghost">Home</Button>
                     </Link>
                     <Link to="/school-jobs">
-                        <Button variant="ghost">Jobs</Button>
+                        <Button variant="ghost">Job</Button>
                     </Link>
                     <Link to="/school-chat">
                     <Button variant="ghost">Chat</Button>

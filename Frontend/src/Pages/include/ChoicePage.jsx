@@ -7,7 +7,7 @@ const ChoicePage = () => {
         navigate("/login")
     };
     const handleHireLoginClick = (type) => {
-        navigate("/school-login")
+        navigate("/login")
     };
     const handleRegisterJobSeekerClick = (type) => {
         navigate("/user-registration")
@@ -55,7 +55,7 @@ const ChoicePage = () => {
                     <div className="flex space-x-4">
                         <button
                             onClick={() => handleRegisterJobSeekerClick('jobseeker')}
-                            className="flex-1 bg-[#c0dab3] text-white py-3 px-6 rounded-lg hover:bg-opacity-90 transition-colors font-medium"
+                            className="flex-1 bg-[#abd497] text-white py-3 px-6 rounded-lg hover:bg-opacity-90 transition-colors font-medium"
                         >
                             Job Seeker
                         </button>

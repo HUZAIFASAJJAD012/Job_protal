@@ -22,6 +22,7 @@ export default function UserProfile() {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`/user/get_user_profile/${id}`);
+                console.log(response.data)
                 setProfile(response.data); // Update profile state
             } catch (error) {
                 setError("Failed to load profile data.");
@@ -37,6 +38,7 @@ export default function UserProfile() {
         const fetchUser = async () => {
             try {
                 const response = await api.get(`/user/get_user_by_id/${id}`);
+                console.log(response.data)
                 setUser(response.data); // Update user state
             } catch (error) {
                 setError("Failed to load user data.");

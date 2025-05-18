@@ -10,39 +10,44 @@ import api from "../../Utils/Axios";
 
 // Job Card Component
 function JobCard({
-                     _id,
-                     title,
-                     schoolName,
-                     coverFrom,
-                     coverTo,
-                     payPerDay,
-                     payPerHour,
-                     currency,
-                     description,
-                     paymentMethod,
-                     location,
-                     qualifications,
-                     backgroundChecks,
-                     jobDurationDays,
-                     jobDurationType,
-                     timeStart,
-                     timeEnd
-                 }) {
+    _id,
+    title,
+    schoolName,
+    coverFrom,
+    coverTo,
+    payPerDay,
+    payPerHour,
+    currency,
+    description,
+    paymentMethod,
+    location,
+    qualifications,
+    backgroundChecks,
+    jobDurationDays,
+    jobDurationType,
+    timeStart,
+    timeEnd,
+    jobImage
+}) {
     return (
         <div className="bg-white rounded p-6 mb-4 hover:shadow-sm transition-shadow">
             <div className="flex items-start gap-4 relative pr-48">
                 <img
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-01-01%20202231-FVjv9TGizfnSdARH7nPOukiU2MkI2b.png" // Placeholder for school logo
-                    alt="Building"
+                    src={
+                        jobImage 
+                            ? `http://localhost:8000${jobImage}`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(schoolName || "Job")}&background=random`
+                    }
+                    alt={title || "Job"}
                     width={64}
                     height={64}
-                    className="rounded-full"
+                    className="rounded-full object-cover w-16 h-16"
                 />
                 <div className="flex-1 pr-32">
                     <div className="flex justify-between items-start">
                         <div>
                             <h3 className="text-base font-semibold mb-0.5">{title}</h3>
-                            <p className="text-gray-500 text-sm mb-1">Cover: {coverFrom}</p>
+                            <p className="text-gray-500 text-sm mb-1">Cover: {new Date(coverFrom).toLocaleDateString()}</p>
                         </div>
                         <Button
                             variant="ghost"
@@ -54,7 +59,7 @@ function JobCard({
                     </div>
                     <div className="space-y-0.5 text-gray-500 text-sm">
                         <p>Start: {timeStart} End: {timeEnd}</p>
-                        <p>Time: {jobDurationDays} Pay: {payPerDay}</p>
+                        <p>Time: {jobDurationDays} Pay: {payPerDay} {currency}</p>
                     </div>
                 </div>
                 <Button
@@ -79,9 +84,16 @@ export default function JobSearch() {
     useEffect(() => {
         async function fetchJobs() {
             try {
-                const response = await api.get("/school/get/job"); // Replace with your API endpoint
-                setJobs(response.data);
-                setFilteredJobs(response.data);
+                const response = await api.get("/school/get/job");
+                // Process jobs to include proper image paths
+                const processedJobs = (response.data || []).map(job => ({
+                    ...job,
+                    // Keep original jobImage path for consistent usage across components
+                    jobImage: job.jobImage || null
+                }));
+                
+                setJobs(processedJobs);
+                setFilteredJobs(processedJobs);
             } catch (error) {
                 console.error("Error fetching jobs:", error);
             }
@@ -94,16 +106,17 @@ export default function JobSearch() {
     const handleFilterChange = (key, value) => {
         setFilters((prevFilters) => ({...prevFilters, [key]: value}));
 
+        const newFilters = { ...filters, [key]: value };
+        
         const filtered = jobs.filter((job) => {
-            const matchesLocation = job.location
-                ? job.location.toLowerCase().includes(filters.location.toLowerCase())
-                : true;
-            const matchesTitle = job.title
-                ? job.title.toLowerCase().includes(filters.title.toLowerCase())
-                : true;
-            const matchesDailyRate = filters.dailyRate
-                ? job.payPerDay >= Number(filters.dailyRate)
-                : true;
+            const matchesLocation = !newFilters.location || 
+                (job.location && job.location.toLowerCase().includes(newFilters.location.toLowerCase()));
+                
+            const matchesTitle = !newFilters.title ||
+                (job.title && job.title.toLowerCase().includes(newFilters.title.toLowerCase()));
+                
+            const matchesDailyRate = !newFilters.dailyRate ||
+                (job.payPerDay && job.payPerDay >= Number(newFilters.dailyRate));
 
             return matchesLocation && matchesTitle && matchesDailyRate;
         });
@@ -169,16 +182,23 @@ export default function JobSearch() {
                 <div>
                     <h2 className="text-lg font-semibold mb-4">Search Jobs</h2>
                     <div>
-                        {filteredJobs.map((job, index) => (
-                            <Link to={{
-                                pathname: `/user/job-detail`,
-                            }}
-                                  state={{
-                                      job: job
-                                  }}>
-                                <JobCard {...job} />
-                            </Link>
-                        ))}
+                        {filteredJobs.length > 0 ? (
+                            filteredJobs.map((job, index) => (
+                                <Link 
+                                    key={job._id || index}
+                                    to={{
+                                        pathname: `/user/job-detail`,
+                                    }}
+                                    state={{
+                                        job: job
+                                    }}
+                                >
+                                    <JobCard {...job} />
+                                </Link>
+                            ))
+                        ) : (
+                            <p className="text-gray-500 py-4">No jobs matching your search criteria.</p>
+                        )}
                     </div>
                 </div>
             </div>

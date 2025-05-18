@@ -12,6 +12,7 @@ export default function JobsNearBy({jobs}) {
                 {jobs.length > 0 ? (
                     jobs.map((job, index) => (
                         <Link
+                            key={job._id || index}
                             to={{
                                 pathname: `/user/job-detail`,
                             }}
@@ -20,7 +21,6 @@ export default function JobsNearBy({jobs}) {
                             }}
                         >
                             <div
-                                key={index}
                                 className="bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.2)]"
                             >
                                 {/* Header */}
@@ -40,13 +40,12 @@ export default function JobsNearBy({jobs}) {
                                         <div className="w-12 h-12 relative">
                                             <img
                                                 src={
-                                                    job.image ||
-                                                    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-01-01%20202231-FVjv9TGizfnSdARH7nPOukiU2MkI2b.png"
+                                                    job.image || 
+                                                    (job.jobImage ? `http://localhost:8000${job.jobImage}` : 
+                                                    `https://ui-avatars.com/api/?name=${encodeURIComponent(job.schoolName || "School")}&background=random`)
                                                 }
-                                                alt="School Logo"
-                                                className="rounded-lg object-cover"
-                                                width={48}
-                                                height={48}
+                                                alt={job.schoolName || "School"}
+                                                className="rounded-lg object-cover w-12 h-12"
                                             />
                                         </div>
                                         <div>

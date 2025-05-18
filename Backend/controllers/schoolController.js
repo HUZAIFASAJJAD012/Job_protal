@@ -35,8 +35,43 @@ class schoolController {
     };
 
     static addJob = async (req, res) => {
-        const {
+    const {
+        title,
+        schoolId,
+        coverFrom,
+        coverTo,
+        payPerDay,
+        payPerHour,
+        currency,
+        timeStart,
+        timeEnd,
+        paymentMethod,
+        qualifications,
+        backgroundChecks,
+        jobDurationDays,
+        jobDurationType,
+        description,
+    } = req.body;
+
+    try {
+        // Check if the school exists
+        const school = await School.findById(schoolId);
+        if (!school) {
+            return res.status(404).json({error: "School not found."});
+        }
+        const schoolName = school.schoolName;
+        const location = school.area;
+        
+        // Handle the job image
+        let jobImage = null;
+        if (req.file) {
+            jobImage = `/uploads/${req.file.filename}`;
+        }
+
+        // Create a new job
+        const newJob = new Job({
             title,
+            schoolName,
             schoolId,
             coverFrom,
             coverTo,
@@ -46,51 +81,23 @@ class schoolController {
             timeStart,
             timeEnd,
             paymentMethod,
+            location,
             qualifications,
             backgroundChecks,
             jobDurationDays,
             jobDurationType,
             description,
-        } = req.body;
+            jobImage // Add the image path to the job document
+        });
 
-        try {
-            // Check if the school exists
-            const school = await School.findById(schoolId);
-            if (!school) {
-                return res.status(404).json({error: "School not found."});
-            }
-            const schoolName = school.schoolName
-            const location = school.area
+        await newJob.save();
 
-            // Create a new job
-            const newJob = new Job({
-                title,
-                schoolName,
-                schoolId,
-                coverFrom,
-                coverTo,
-                payPerDay,
-                payPerHour,
-                currency,
-                timeStart,
-                timeEnd,
-                paymentMethod,
-                location,
-                qualifications,
-                backgroundChecks,
-                jobDurationDays,
-                jobDurationType,
-                description,
-            });
-
-            await newJob.save();
-
-            res.status(201).json({message: "Job added successfully!", job: newJob});
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({error: "Server error"});
-        }
-    };
+        res.status(201).json({message: "Job added successfully!", job: newJob});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Server error"});
+    }
+};
 
     static update = async (req, res) => {
         const {schoolName, country, area, email, phone, firstName, lastName, role, password} = req.body;

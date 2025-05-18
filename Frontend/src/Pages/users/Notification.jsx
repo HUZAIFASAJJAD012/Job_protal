@@ -17,7 +17,12 @@ export default function Notifications() {
     const fetchJobs = async () => {
       try {
         const response = await api.get("/school/get/job");
-        setJobsAvailable(response.data || []);
+        // Process jobs to include the proper image URL
+        const processedJobs = (response.data || []).map(job => ({
+          ...job,
+          imageUrl: job.jobImage ? `http://localhost:8000${job.jobImage}` : null
+        }));
+        setJobsAvailable(processedJobs);
       } catch (error) {
         console.error("Error fetching jobs:", error);
       }
@@ -67,9 +72,12 @@ export default function Notifications() {
                     <div className="flex items-center gap-4">
                       <div className="relative w-14 h-14 overflow-hidden rounded-full">
                         <img
-                          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202024-12-21%20234547-10D5DLrL80fLYA5En2D0XV5JInFFWv.png"
-                          alt="School"
-                          className="object-cover"
+                          src={
+                            job.imageUrl || 
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(job.schoolName || "Job")}&background=random`
+                          }
+                          alt={job.title || "Job"}
+                          className="object-cover w-full h-full"
                         />
                       </div>
                       <div>
@@ -97,7 +105,7 @@ export default function Notifications() {
               ))
             ) : (
               <p className="text-red-600 text-sm font-semibold">
-                No new job notifications or you’ve applied to all available jobs.
+                No new job notifications or you've applied to all available jobs.
               </p>
             )}
           </div>

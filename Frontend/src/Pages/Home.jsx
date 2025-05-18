@@ -30,8 +30,16 @@ function Home() {
             try {
                 const response = await api.get("/school/get/job");
                 const jobs = response.data || [];
-                setJobsAvailable(jobs);
-                setFilteredJobs(jobs); // Initialize with all jobs
+                
+                // Process jobs to ensure proper image URL formatting
+                const processedJobs = jobs.map(job => ({
+                    ...job,
+                    // Ensure jobImage has the correct path for display in the Jobs-Near-By component
+                    image: job.jobImage ? `http://localhost:8000${job.jobImage}` : null
+                }));
+                
+                setJobsAvailable(processedJobs);
+                setFilteredJobs(processedJobs); // Initialize with all jobs
             } catch (error) {
                 console.error("Error fetching jobs:", error);
             }
@@ -55,7 +63,7 @@ function Home() {
         const filtered = jobsAvailable.filter((job) => {
             const matchKeyword = job.title.toLowerCase().includes(lowerKeyword) ||
                 job.description?.toLowerCase().includes(lowerKeyword);
-            const matchLocation = job.location?.toLowerCase().includes(lowerLocation);
+            const matchLocation = !location || (job.location?.toLowerCase().includes(lowerLocation));
 
             return matchKeyword && matchLocation;
         });

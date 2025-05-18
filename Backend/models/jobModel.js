@@ -19,6 +19,10 @@ const jobSchema = new mongoose.Schema({
     jobDurationType: {type: String, required: false},
     description: {type: String, required: false},
     createdAt: {type: Date, default: Date.now},
+       jobImage: {
+        type: String,  // This stores the path to the uploaded image
+        default: null
+    },
     
 });
 

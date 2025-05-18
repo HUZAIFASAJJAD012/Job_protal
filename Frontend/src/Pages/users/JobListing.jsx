@@ -26,10 +26,8 @@ const JobCard = ({
   jobDurationType,
   timeStart,
   timeEnd,
-  profilePicture,  // Using profilePicture from backend
+  jobImage,  // Using jobImage from backend
 }) => {
-  console.log("JobCard profilePicture prop:", profilePicture);
-
   return (
     <Link
       to={{
@@ -54,7 +52,7 @@ const JobCard = ({
           jobDurationType,
           timeStart,
           timeEnd,
-          profilePicture,
+          jobImage,
         },
       }}
     >
@@ -64,9 +62,9 @@ const JobCard = ({
             <Avatar className="h-14 w-14 rounded-full border-[1px] border-black">
               <AvatarImage
                 src={
-                  profilePicture
-                    ? `${server_ip}${profilePicture}`
-                    : "https://via.placeholder.com/150"
+                  jobImage
+                    ? `http://localhost:8000${jobImage}`
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(schoolName)}&background=random`
                 }
                 alt={schoolName}
                 className="object-cover"
@@ -164,7 +162,7 @@ export default function JobListings() {
             <div className="grid gap-6 md:grid-cols-2">
               {filteredJobsAvailable.length > 0 ? (
                 filteredJobsAvailable.map((job) => (
-                  <JobCard key={job._id} {...job} profilePicture={job.profilePicture} />
+                  <JobCard key={job._id} {...job} jobImage={job.jobImage} />
                 ))
               ) : (
                 <p className="text-red-600 text-sm font-semibold">
@@ -187,7 +185,7 @@ export default function JobListings() {
                     <JobCard
                       key={jobDetails._id}
                       {...jobDetails}
-                      profilePicture={jobDetails.profilePicture}
+                      jobImage={jobDetails.jobImage}
                     />
                   ) : null;
                 })

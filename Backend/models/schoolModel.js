@@ -12,6 +12,7 @@ const SchoolSchema = new mongoose.Schema({
     role: {type: String, required: true},
     password: {type: String, required: true},
     fee: {type: Number, default: 399},
+ 
     isHire: {
         type: Boolean,
         default: true,

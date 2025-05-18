@@ -118,7 +118,7 @@ export default function JobsAppliedList() {
   });
 
   const handleSelect = (selectedUserId) => {
-    navigate(`/school-chat`, { state: { selectedUserId } });
+    navigate(`/school-jobs`, { state: { selectedUserId } });
   };
 
   return (

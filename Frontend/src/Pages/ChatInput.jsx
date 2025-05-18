@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import api from "../Utils/Axios";
 import { Store } from "../Utils/Store";
@@ -37,6 +37,7 @@ const ChatInput = () => {
   const { selectedUserId } = location.state || {};
   const [conversations, setConversations] = useState([]);
   const [showChatView, setShowChatView] = useState(false);
+  const messagesEndRef = useRef(null);
 
   // Join user's socket room
   useEffect(() => {
@@ -44,6 +45,24 @@ const ChatInput = () => {
       socket.emit("join", UserInfo.id);
     }
   }, [UserInfo?.id]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  // Fetch user's profile picture
+  const fetchUserProfile = async (userId) => {
+    try {
+      const { data } = await api.get(`/user/get_user_profile/${userId}`);
+      return data.profilePicture ? `http://localhost:8000${data.profilePicture}` : null;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+  };
 
   // Fetch user's conversations
   useEffect(() => {
@@ -60,7 +79,7 @@ const ChatInput = () => {
             const { data: messages } = await api.get(`/messages/${chat._id}`);
             const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
             
-            // Check if message is read (you'd need to implement this logic based on your backend)
+            // Check if message is read
             const isUnread = lastMessage ? 
               (lastMessage.sender !== UserInfo.id && !lastMessage.isRead) : false;
             
@@ -78,19 +97,28 @@ const ChatInput = () => {
               if (diffDays < 30) return `${diffDays} d ago`;
               return `${Math.floor(diffDays / 30)} mo ago`;
             };
+
+            // Get the other user's ID (not the current user)
+            const recipientId = chat.members.find(
+              (member) => member.toString() !== UserInfo.id.toString()
+            );
+            
+            // Fetch the recipient's profile picture
+            const profilePicture = await fetchUserProfile(recipientId);
               
             return {
               id: chat._id,
               name: chat.recipientName || "Unknown User", 
               message: lastMessage ? lastMessage.content : "Start a conversation",
               time: lastMessage ? getTimeAgo(lastMessage.createdAt) : getTimeAgo(chat.createdAt),
-              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`,
+              avatar: profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.recipientName || "Unknown")}&background=random`,
               unread: isUnread,
               unreadCount: isUnread ? 5 : 0, // You would replace this with actual count from your backend
               read: !isUnread && lastMessage && lastMessage.sender === UserInfo.id,
               // Additional fields for internal use
               members: chat.members,
-              lastMessageTime: lastMessage ? lastMessage.createdAt : chat.createdAt
+              lastMessageTime: lastMessage ? lastMessage.createdAt : chat.createdAt,
+              recipientId: recipientId
             };
           } catch (error) {
             console.error("Error fetching messages for chat", chat._id, error);
@@ -160,18 +188,22 @@ const ChatInput = () => {
         return prevChats;
       });
       
+      // Fetch profile picture for new chat
+      const profilePicture = await fetchUserProfile(userId);
+
       // Add to conversations list with UI formatting
       const newConversation = {
         id: newChat._id,
         name: newChat.recipientName || "Unknown User",
         message: "Start a conversation",
         time: "just now",
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newChat.recipientName || "Unknown")}&background=random`,
+        avatar: profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(newChat.recipientName || "Unknown")}&background=random`,
         unread: false,
         unreadCount: 0,
         read: false,
         members: newChat.members,
-        lastMessageTime: new Date()
+        lastMessageTime: new Date(),
+        recipientId: userId
       };
       
       setConversations(prev => [...prev, newConversation]);
@@ -235,7 +267,7 @@ const ChatInput = () => {
 
   // Listen for new messages via Socket.IO
   useEffect(() => {
-    socket.on("receive_message", (message) => {
+    const handleReceiveMessage = (message) => {
       // If this message belongs to the active chat, add it to messages
       if (activeChat === message.conversationId) {
         setMessages((prev) => {
@@ -266,10 +298,12 @@ const ChatInput = () => {
           return conv;
         })
       );
-    });
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
 
     return () => {
-      socket.off("receive_message");
+      socket.off("receive_message", handleReceiveMessage);
     };
   }, [activeChat, UserInfo?.id]);
 
@@ -399,7 +433,7 @@ const ChatInput = () => {
                     onClick={() => handleChatSelect(chat.id, chat)}
                   >
                     <Avatar className="h-11 w-11 flex-shrink-0">
-                      <AvatarImage src={chat.avatar}/>
+                      <AvatarImage src={chat.avatar} className="object-cover" />
                       <AvatarFallback>{chat.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
@@ -452,7 +486,7 @@ const ChatInput = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <Avatar className="h-10 w-10">
-              <AvatarImage src={activeChatData?.avatar} />
+              <AvatarImage src={activeChatData?.avatar} className="object-cover" />
               <AvatarFallback>{activeChatData?.name[0]}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -472,7 +506,7 @@ const ChatInput = () => {
                   >
                     {msg.sender !== UserInfo.id && (
                       <Avatar className="h-8 w-8 mr-2 flex-shrink-0">
-                        <AvatarImage src={activeChatData?.avatar} />
+                        <AvatarImage src={activeChatData?.avatar} className="object-cover" />
                         <AvatarFallback>{activeChatData?.name[0]}</AvatarFallback>
                       </Avatar>
                     )}
@@ -490,6 +524,7 @@ const ChatInput = () => {
               ) : (
                 <p className="text-center text-gray-500 text-sm py-4">No messages yet. Start the conversation!</p>
               )}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 

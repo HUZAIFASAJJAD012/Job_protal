@@ -2,11 +2,12 @@
 import React, {useState, useEffect, useContext} from "react";
 import axios from "axios";
 import { ExternalLink, Check } from "lucide-react";
-import Header from "./Header";
+
 import { Link } from "react-router-dom";
 import api from "../../Utils/Axios";
 import {Store} from "../../Utils/Store"
 import {server_ip} from "../../Utils/Data";
+import Header from "../school/Header";
 export default function Profile() {
     const [profile, setProfile] = useState(null); // State to store profile data
     const [loading, setLoading] = useState(true); // Loading state

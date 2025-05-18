@@ -7,34 +7,32 @@ const login = async (req, res, next) => {
     
     const { email, password } = req.body;
     console.log(email,password);
+try {
+    const existingAdmin = await adminModel.findOne({ email });
 
-    try {
-        // First, check in adminModel to see if the user is an admin
-        const existingAdmin = await adminModel.findOne({ email });
-  
-        if (existingAdmin) {
-            // If admin is found, check if the password is valid            
-        const isPasswordValid =  bcrypt.compare(password,existingAdmin.password);
-            if (!isPasswordValid) {
-                return res.status(400).json({ message: "Invalid password" });
-            }
+    if (existingAdmin) {
+        // ✅ Await the result of bcrypt.compare
+        const isPasswordValid = await bcrypt.compare(password, existingAdmin.password);
 
-            // Generate token for admin
-            const token = generateToken(existingAdmin);
-
-            return res.status(200).json({
-                message: "Admin login successful",
-                user: {
-                    id: existingAdmin._id,
-                    firstName: existingAdmin.firstName,
-                    lastName: existingAdmin.lastName,
-                    email: existingAdmin.email,
-                    phone: existingAdmin.phone,
-                    isAdmin: existingAdmin.isAdmin, // Admin flag
-                },
-                token: token
-            });
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: "Invalid password" });
         }
+
+        const token = generateToken(existingAdmin);
+
+        return res.status(200).json({
+            message: "Admin login successful",
+            user: {
+                id: existingAdmin._id,
+                firstName: existingAdmin.firstName,
+                lastName: existingAdmin.lastName,
+                email: existingAdmin.email,
+                phone: existingAdmin.phone,
+                isAdmin: existingAdmin.isAdmin,
+            },
+            token: token
+        });
+    }
 
         // If not admin, check in userModel for regular user
         const existingUser = await userModel.findOne({ email });

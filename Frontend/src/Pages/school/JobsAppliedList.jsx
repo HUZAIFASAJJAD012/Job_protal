@@ -21,7 +21,7 @@ function ProfileCard({
 
   return (
     <div className="flex items-center justify-between py-4 px-6 rounded-lg drop-shadow-sm bg-white w-full">
-      <Link to={`/school-user-profile/${id}`}>
+      <Link >
         <div className="flex items-start gap-4">
           <img
             src={imageUrl}

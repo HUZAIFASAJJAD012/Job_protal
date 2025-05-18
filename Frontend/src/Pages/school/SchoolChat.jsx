@@ -23,8 +23,8 @@ import {
   ChevronDown,
   Search,
 } from "lucide-react";
-import Header from "./Header";
 import api from "../../Utils/Axios";
+import Header from "./Header";
 
 const SchoolChat = () => {
   const [conversations, setConversations] = useState([]);

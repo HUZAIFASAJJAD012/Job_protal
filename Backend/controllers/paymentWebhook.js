@@ -154,6 +154,7 @@ export const handleStripeWebhook = async (req, res) => {
 
     // Handle Job Application Payment
     if (session.metadata.type === 'job_application') {
+      
       try {
         const userId = session.metadata.user_id;
         const jobId = session.metadata.job_id;

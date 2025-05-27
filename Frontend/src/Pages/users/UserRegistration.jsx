@@ -11,6 +11,8 @@ export default function UserRegistrationForm() {
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
     const [showVerifyPassword, setShowVerifyPassword] = useState(false)
+    const [isCustomOrganization, setIsCustomOrganization] = useState(false);
+
     const [backgroundChecks, setBackgroundChecks] = useState({
         DBS: false,
         PGCE: false,
@@ -31,8 +33,62 @@ export default function UserRegistrationForm() {
         area: '',
         organization: ''
     });
+const [isCustomCountry, setIsCustomCountry] = useState(false);
+const [isCustomArea, setIsCustomArea] = useState(false);
+const middleEastCountries = [
+  "United Arab Emirates",
+  "Saudi Arabia",
+  "Qatar",
+  "Kuwait",
+  "Oman",
+  "Bahrain",
+  "Jordan",
+  "Lebanon",
+  "Palestine",
+  "Syria",
+  "Iraq",
+  "Iran",
+  "Turkey",
+  "Yemen",
+  "Egypt",
+  "Israel"
+];
 
+const middleEastAreas = [
+  "Abu Dhabi",
+  "Dubai",
+  "Sharjah",
+  "Ajman",
+  "Riyadh",
+  "Jeddah",
+  "Mecca",
+  "Medina",
+  "Dammam",
+  "Doha",
+  "Manama",
+  "Kuwait City",
+  "Muscat",
+  "Amman",
+  "Beirut",
+  "Baghdad",
+  "Damascus",
+  "Gaza",
+  "Tehran"
+];
     const [errorMessage, setErrorMessage] = useState(''); // State for error messages
+const [dob, setDob] = useState({ day: "", month: "", year: "" });
+const handleDobChange = (field, value) => {
+  const updatedDob = { ...dob, [field]: value };
+  setDob(updatedDob);
+
+  const { day, month, year } = updatedDob;
+  if (day && month && year) {
+    setFormData((prev) => ({
+      ...prev,
+      dateOfBirth: `${day}/${month}/${year}`,
+    }));
+  }
+};
 
     const handleCheckboxChange = (check) => {
         setBackgroundChecks(prev => ({
@@ -49,31 +105,67 @@ export default function UserRegistrationForm() {
         }));
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await api.post('/user/register', {
-                ...formData,
-                backgroundChecks
-            });
-            toast.success("User Registered SuccessFully")
-            navigate("/login")
-            setErrorMessage('');
+ const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        } catch (error) {
-            console.error('Error registering user:', error);
+    try {
+        const response = await api.post('/user/register', {
+            ...formData,
+            backgroundChecks
+        });
 
-            if (error.response && error.response.data && error.response.data.errors) {
-                const backendError = error.response.data.errors[0].msg;
-
-                setErrorMessage(backendError);
-            } else {
-                setErrorMessage(error.message);
-            }
+        // Show success toast with more details if available
+        if (response.data?.message) {
+            toast.success(response.data.message);
+        } else {
+            toast.success("User registered successfully!");
         }
 
-    }
+        setErrorMessage('');
+        navigate("/login");
 
+    } catch (error) {
+        console.error('Error registering user:', error);
+
+        if (error.response) {
+            const { data, status } = error.response;
+
+            // Common error messages from backend
+            if (status === 400 && data.errors) {
+                // Validation errors
+                setErrorMessage(data.errors[0].msg || "Invalid input");
+                toast.error(data.errors[0].msg || "Invalid input");
+            } else if (status === 409) {
+                // Conflict (e.g., email already exists)
+                setErrorMessage("Email already exists. Please use a different one.");
+                toast.error("Email already exists. Please use a different one.");
+            } else if (status === 500) {
+                // Server error
+                setErrorMessage("Server error. Please try again later.");
+                toast.error("Server error. Please try again later.");
+            } else {
+                // Any other error
+                setErrorMessage(data.message || "Something went wrong");
+                toast.error(data.message || "Something went wrong");
+            }
+
+        } else if (error.request) {
+            // No response from server
+            setErrorMessage("No response from server. Please check your internet connection.");
+            toast.error("No response from server. Please check your internet connection.");
+        } else {
+            // Other errors
+            setErrorMessage(error.message);
+            toast.error(error.message);
+        }
+    }
+};
+const organizationOptions = [
+  "Primary",
+  "Middle School",
+  "High School",
+  "University"
+];
     return (
         <>
             <Helmet><title>User Registration</title></Helmet>
@@ -154,45 +246,90 @@ export default function UserRegistrationForm() {
                     </div>
 
                     {/* Country */}
-                    <div className="space-y-1">
-                        <label className="text-sm text-gray-600 font-normal">Country</label>
-                        <div className="relative">
-                            <select
-                                name="country"
-                                value={formData.country}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
-                                required
-                            >
-                                <option value="">Select country</option>
-                                <option value="pakistan">Pakistan</option>
-                                <option value="afghanistan">Afganistan</option>
-                            </select>
-                            <ChevronDown
-                                className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"/>
-                        </div>
-                    </div>
+                  
+<div className="space-y-1">
+  <label className="text-sm text-gray-600 font-normal">Country</label>
+  <div className="relative">
+    {!isCustomCountry ? (
+      <>
+        <select
+          name="country"
+          value={formData.country}
+          onChange={(e) => {
+            if (e.target.value === "other") {
+              setIsCustomCountry(true);
+              setFormData((prev) => ({ ...prev, country: "" }));
+            } else {
+              handleChange(e);
+            }
+          }}
+          className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
+          required
+        >
+          <option value="">Select country</option>
+          {middleEastCountries.map((country, idx) => (
+            <option key={idx} value={country}>{country}</option>
+          ))}
+          <option value="other">Other</option>
+        </select>
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+      </>
+    ) : (
+      <input
+        type="text"
+        name="country"
+        value={formData.country}
+        onChange={handleChange}
+        placeholder="Enter your country"
+        className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none"
+        required
+      />
+    )}
+  </div>
+</div>
 
-                    {/* Area */}
-                    <div className="space-y-1">
-                        <label className="text-sm text-gray-600 font-normal">Area</label>
-                        <div className="relative">
-                            <select
-                                name="area"
-                                value={formData.area}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
-                                required
-                            >
-                                <option value="">Choose area</option>
-                                <option value="malakand">Malakand</option>
-                                <option value="kurramagency">Kurram Agency</option>
-                                <option value="gilgit">Gilgit</option>
-                            </select>
-                            <ChevronDown
-                                className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"/>
-                        </div>
-                    </div>
+                   {/* Area */}
+<div className="space-y-1">
+  <label className="text-sm text-gray-600 font-normal">Area</label>
+  <div className="relative">
+    {!isCustomArea ? (
+      <>
+        <select
+          name="area"
+          value={formData.area}
+          onChange={(e) => {
+            if (e.target.value === "other") {
+              setIsCustomArea(true);
+              setFormData((prev) => ({ ...prev, area: "" }));
+            } else {
+              handleChange(e);
+            }
+          }}
+          className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
+          required
+        >
+          <option value="">Choose area</option>
+          {middleEastAreas.map((area, idx) => (
+            <option key={idx} value={area}>{area}</option>
+          ))}
+          <option value="other">Other</option>
+        </select>
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+      </>
+    ) : (
+      <input
+        type="text"
+        name="area"
+        value={formData.area}
+        onChange={handleChange}
+        placeholder="Enter your area"
+        className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none"
+        required
+      />
+    )}
+  </div>
+</div>
+
 
                     {/* Password */}
                     <div className="space-y-1">
@@ -261,23 +398,50 @@ export default function UserRegistrationForm() {
                         </div>
                     </div>
 
-                    {/* Organization */}
-                    <div className="space-y-1">
-                        <label className="text-sm text-gray-600 font-normal">Organization</label>
-                        <div className="relative">
-                            <select
-                                name="organization"
-                                value={formData.organization}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
-                            >
-                                <option value="">choose</option>
-                                <option value="zaalasociety">Zaala Society</option>
-                            </select>
-                            <ChevronDown
-                                className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"/>
-                        </div>
-                    </div>
+                  {/* Organization */}
+<div className="space-y-1">
+  <label className="text-sm text-gray-600 font-normal">Organization</label>
+  <div className="relative">
+    {!isCustomOrganization ? (
+      <>
+        <select
+          name="organization"
+          value={formData.organization}
+          onChange={(e) => {
+            if (e.target.value === "other") {
+              setIsCustomOrganization(true);
+              setFormData((prev) => ({ ...prev, organization: "" }));
+            } else {
+              handleChange(e);
+            }
+          }}
+          className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
+          required
+        >
+          <option value="">Choose organization</option>
+          {organizationOptions.map((option, idx) => (
+            <option key={idx} value={option}>{option}</option>
+          ))}
+          <option value="other">Other</option>
+        </select>
+        <ChevronDown
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+        />
+      </>
+    ) : (
+      <input
+        type="text"
+        name="organization"
+        value={formData.organization}
+        onChange={handleChange}
+        placeholder="Enter your organization"
+        className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none"
+        required
+      />
+    )}
+  </div>
+</div>
+
 
                     {/* Background Check */}
                     <div className="col-span-2 space-y-2">
@@ -325,21 +489,55 @@ export default function UserRegistrationForm() {
                         </div>
                     </div>
 
-                    {/* DOB */}
-                    <div className="space-y-1">
-                        <label className="text-sm text-gray-600 font-normal">DOB</label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
-                            <input
-                                type="text"
-                                name="dateOfBirth"
-                                value={formData.dateOfBirth}
-                                onChange={handleChange}
-                                placeholder="e.g 02/12/2000"
-                                className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none"
-                            />
-                        </div>
-                    </div>
+                   {/* DOB */}
+<div className="space-y-1">
+  <label className="text-sm text-gray-600 font-normal">Date of Birth</label>
+  <div className="flex gap-2">
+    {/* Day */}
+    <select
+      value={dob.day}
+      onChange={(e) => handleDobChange("day", e.target.value)}
+      className="w-1/3 px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
+      required
+    >
+      <option value="">Day</option>
+      {[...Array(31)].map((_, i) => (
+        <option key={i + 1} value={String(i + 1).padStart(2, "0")}>
+          {i + 1}
+        </option>
+      ))}
+    </select>
+
+    {/* Month */}
+    <select
+      value={dob.month}
+      onChange={(e) => handleDobChange("month", e.target.value)}
+      className="w-1/3 px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
+      required
+    >
+      <option value="">Month</option>
+      {[...Array(12)].map((_, i) => (
+        <option key={i + 1} value={String(i + 1).padStart(2, "0")}>
+          {i + 1}
+        </option>
+      ))}
+    </select>
+
+    {/* Year */}
+    <select
+      value={dob.year}
+      onChange={(e) => handleDobChange("year", e.target.value)}
+      className="w-1/3 px-4 py-2 bg-[#F5F5F5] rounded-md focus:outline-none appearance-none"
+      required
+    >
+      <option value="">Year</option>
+      {Array.from({ length: 70 }, (_, i) => new Date().getFullYear() - i - 10).map((year) => (
+        <option key={year} value={year}>{year}</option>
+      ))}
+    </select>
+  </div>
+</div>
+
 
                     {/* Sign Up Button */}
                     <div className=" mt-8">

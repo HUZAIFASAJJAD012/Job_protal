@@ -1,4 +1,3 @@
-
 export default function WhyChooseUs() {
   const features = [
     {
@@ -19,7 +18,7 @@ export default function WhyChooseUs() {
   ]
 
   return (
-    <section className="py-16 bg-[#F8F9FE] mx-auto" style={{width:"87%"}}>
+    <section className="py-16 bg-[#F8F9FE] w-[87%] mx-auto">
       <div className="container mx-auto px-4">
         <h1 className="text-4xl font-bold mb-12 text-center md:text-left">
           Why You Should Choose Us
@@ -31,16 +30,13 @@ export default function WhyChooseUs() {
               key={index}
               className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="relative h-64 w-full">
-                <img
-                  src={feature.image}
-                  alt={feature.title}
-                  className="object-cover rounded-t-3xl"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              </div>
+              <img
+                src={feature.image}
+                alt={feature.title}
+                className="w-full h-[30vh] object-cover"
+              />
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3">
+                <h3 className="text-3xl font-semibold mb-3">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
@@ -54,4 +50,3 @@ export default function WhyChooseUs() {
     </section>
   )
 }
-

@@ -14,7 +14,6 @@ export default function ContactSection() {
                     <div className="space-y-4">
                         {/* Header */}
                         <div>
-                            <span className="text-sm font-medium text-gray-600">Connect</span>
                             <h1 className="text-[42px] font-extrabold mt-2 mb-3">Contact Us</h1>
                             <p className="text-gray-600 text-lg">We're here to help you with any questions.</p>
                         </div>

@@ -21,36 +21,35 @@ function ProfileCard({
 
   return (
     <div className="flex items-center justify-between py-4 px-6 rounded-lg drop-shadow-sm bg-white w-full">
-      <Link >
-        <div className="flex items-start gap-4">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="w-20 h-20 rounded-full object-cover"
-          />
-          <div className="space-y-2">
-            <h3 className="text-base font-semibold text-gray-900">{name}</h3>
-            <div className="space-y-0.5 text-sm">
-              <div className="flex items-center gap-1">
-                <span className="text-gray-500">Availability:</span>
-                <span className="text-gray-700">{availableDays}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-gray-500">Date Available from:</span>
-                <span className="text-gray-700">{dateFrom}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-gray-500">Date Available to:</span>
-                <span className="text-gray-700">{dateTo}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-gray-500">Jobs Completed:</span>
-                <span className="text-gray-900 font-medium">{jobsCompleted}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Link>
+     <Link to={`/school-user-profile/${id}`} className="flex items-start gap-4">
+  <img
+    src={imageUrl}
+    alt={name}
+    className="w-20 h-20 rounded-full object-cover"
+  />
+  <div className="space-y-2">
+    <h3 className="text-base font-semibold text-gray-900">{name}</h3>
+    <div className="space-y-0.5 text-sm">
+      <div className="flex items-center gap-1">
+        <span className="text-gray-500">Availability:</span>
+        <span className="text-gray-700">{availableDays}</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <span className="text-gray-500">Date Available from:</span>
+        <span className="text-gray-700">{dateFrom}</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <span className="text-gray-500">Date Available to:</span>
+        <span className="text-gray-700">{dateTo}</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <span className="text-gray-500">Jobs Completed:</span>
+        <span className="text-gray-900 font-medium">{jobsCompleted}</span>
+      </div>
+    </div>
+  </div>
+</Link>
+
       <button
         className="px-16 py-3 bg-[#2B8200] hover:bg-[#2B7A0B] text-white text-sm font-medium rounded-md transition-colors"
         onClick={() => onSelect(id)}

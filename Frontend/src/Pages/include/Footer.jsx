@@ -1,54 +1,101 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll";
 
 const Footer = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    number: ""
+  });
+
+  const handleInputChange = (e) => {
+    setFormData({...formData, [e.target.name]: e.target.value});
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // TODO: Replace with logic to store in database
+    console.log("Form submitted:", formData);
+    alert("Thank you for signing up!");
+  };
+
   return (
-    <footer style={{backgroundColor:"#005502"}} className="text-white py-8">
-      <div className="container mx-auto flex justify-between items-start">
+    <footer className="bg-[#005502] text-white py-10">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between gap-10 px-6">
         {/* Left Section */}
-        <div className="flex items-start">
+        <div className="flex flex-col md:flex-row items-start">
           <div className="w-16 h-16 bg-gray-300 rounded-full">
             <img
-                src="/logo.jpg"
-                alt="Parkhouse English School"
-                width={64}
-                height={64}
-                className="h-full w-full rounded-full object-cover"
+              src="/logo.jpg"
+              alt="Parkhouse English School"
+              width={64}
+              height={64}
+              className="h-full w-full rounded-full object-cover"
             />
           </div>
-          <ul className="ml-4 space-y-2">
-            <li><a href="#" className="hover:underline">Home</a></li>
-            <li><a href="#" className="hover:underline">About Us</a></li>
-            <li><a href="#" className="hover:underline">Blog</a></li>
-            <li><a href="#" className="hover:underline">Contact Us</a></li>
+          <ul className="ml-4 mt-4 md:mt-0 space-y-2">
+            <li>
+              <Link to="/" className="hover:underline">Home</Link>
+            </li>
+            <li>
+              <ScrollLink to="about-us" smooth duration={500} className="hover:underline cursor-pointer">About Us</ScrollLink>
+            </li>
+            <li>
+        <ScrollLink to="blog" smooth duration={500} className="hover:underline cursor-pointer">
+  Blog
+</ScrollLink>
+            </li>
+            <li>
+              <ScrollLink to="contact-us" smooth duration={500} className="hover:underline cursor-pointer">Contact Us</ScrollLink>
+            </li>
           </ul>
         </div>
 
         {/* Middle Section */}
         <ul className="space-y-2">
-          <li><a href="#" className="hover:underline">Login</a></li>
-          <li><a href="#" className="hover:underline">User</a></li>
-          <li><a href="#" className="hover:underline">School</a></li>
+          <li><Link to="/login-choice" className="hover:underline">Login</Link></li>
+          <li><Link to="/user/job-listing" className="hover:underline">User</Link></li>
+          <li><Link to="/school-jobs" className="hover:underline">School</Link></li>
         </ul>
 
-        {/* Right Section */}
-        <div>
+        {/* Right Section: Notification Form */}
+        <div className="w-full max-w-xs">
           <h3 className="mb-4 font-semibold">Sign Up for Notifications</h3>
-          <form className="space-y-3">
+          <form className="space-y-3" onSubmit={handleSubmit}>
             <input
               type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
               placeholder="Enter your name"
               className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
             />
             <input
               type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
               placeholder="Enter your email"
               className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
             />
             <input
               type="text"
-              placeholder="Enter Number"
+              name="number"
+              value={formData.number}
+              onChange={handleInputChange}
+              placeholder="Enter number"
               className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
             />
+            <button
+              type="submit"
+              className="w-full bg-[#FFCC00] text-black font-semibold py-2 px-4 rounded-lg hover:bg-yellow-400 transition-colors"
+            >
+              Confirm & Subscribe
+            </button>
           </form>
         </div>
       </div>

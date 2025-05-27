@@ -133,7 +133,9 @@ function Home() {
             </div>
             <JobsNearBy jobs={filteredJobs}/>
             <WhyChooseUs/>
-            <Blog/>
+            <div id="blog">
+  <Blog />
+</div>
             <div id="pricing"><Pricing/></div>
             <div id="about-us"><AboutUs/></div>
             <div id="contact-us">

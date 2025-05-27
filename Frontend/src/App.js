@@ -37,6 +37,7 @@ import SubscriptionProtected from "./Security/SubscriptionProtected";
 import RenewalSuccess from "./Pages/renewal-success";
 import RenewalCancelled from "./Pages/renewal-cancelled";
 import AdminPayments from "./Pages/admin/AdminPayments";
+import Dashboard from "./Pages/admin/Dashboard";
 
 function App() {
   return (
@@ -216,8 +217,7 @@ function App() {
             path="/admin/dashboard"
             element={
               <AdminProtected>
-                <JobList />
-              </AdminProtected>
+<Dashboard />              </AdminProtected>
             }
           />
           <Route

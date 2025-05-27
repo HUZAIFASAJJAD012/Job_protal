@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function PricingCard({
   title,
@@ -16,10 +17,11 @@ export default function PricingCard({
         <div className="text-4xl font-bold mb-1">{price}QR</div>
         <div className="text-gray-600">Unit: {unit}</div>
       </div>
-
+<Link to="/login"> 
       <button className="w-full bg-[#2B7A0B] text-white py-2 rounded-md hover:bg-[#236508] transition-colors mb-7">
         Sign Up Now
       </button>
+      </Link>
       <div className="w-full h-px bg-gray-200 mb-3"></div>
 
       <ul className="space-y-4">

@@ -17,7 +17,7 @@ import {
 } from '../components/ui/dropdown-menu';
 
 // Socket connection setup
-const socket = io("http://localhost:8000", {
+const socket = io("http://16.171.162.180:8000/", {
   transports: ["websocket"],
   withCredentials: true, // critical for CORS when cookies are used
 });
@@ -450,8 +450,7 @@ const ChatInput = () => {
                           </span>
                           {chat.unread ? (
                             <div
-                              className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center text-[11px] text-white font-medium">
-                              {chat.unreadCount}
+                             >
                             </div>
                           ) : (
                             chat.read && (

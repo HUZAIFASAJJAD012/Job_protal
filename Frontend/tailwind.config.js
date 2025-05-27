@@ -1,3 +1,5 @@
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -17,10 +19,27 @@ module.exports = {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-		   foreground: 'hsl(var(--sidebar-foreground))',
-        background: 'hsl(var(--sidebar-background))'  // Add this line for bg-background
+        foreground: 'hsl(var(--sidebar-foreground))',
+        background: 'hsl(var(--sidebar-background))'
+      },
+      keyframes: {
+        slideDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        slideDown: 'slideDown 0.3s ease-out forwards',
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.animate-slideDown': {
+          animation: 'slideDown 0.3s ease-out forwards',
+        },
+      });
+    }),
+  ],
 };

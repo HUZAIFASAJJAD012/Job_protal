@@ -42,7 +42,7 @@ const connect = async () => {
 // Setup __dirname for ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const buildPath = path.join(__dirname, '../Frontend/build');
+const buildPath = path.join(__dirname, './build');
 
 // CORS configuration
 const allowedOrigins = process.env.FRONTEND_URL.split(',');

@@ -36,38 +36,61 @@ export default function Login() {
     }, [UserInfo, navigate]);  // Make sure to add dependencies
 
     // Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            // Send login request to backend            
-            const response = await api.post('/auth/login', formData);
-            console.log(response.data); 
-            toast.success("User Logged In");
+    try {
+        const response = await api.post('/auth/login', formData);
+        const user = response.data.user;
 
-            const user = response.data.user;
-            dispatch({ type: "UserLoggedIn", payload: user });
+        // Show success message
+        toast.success("User logged in successfully!");
 
-            // Check if the user is admin or regular user
-            if (user.isAdmin) {
-                navigate("/admin/dashboard");
-            } else if (user.isUser) {
-                console.log("userjobs2");
-                navigate("/user/job-listing");
-            } else {
-                console.log("schooljobs2");
-               
-                navigate("/school-jobs");
-            }
-        } catch (error) {
-            // Handle errors such as incorrect credentials
-            if (error.response && error.response.data) {
-                setErrorMessage(error.response.data.message || 'Login failed. Please try again.')
-            } else {
-                setErrorMessage('An error occurred. Please try again.')
-            }
+        // Dispatch login state
+        dispatch({ type: "UserLoggedIn", payload: user });
+
+        // Navigate based on user role
+        if (user.isAdmin) {
+            navigate("/admin/dashboard");
+        } else if (user.isUser) {
+            navigate("/user/job-listing");
+        } else {
+            navigate("/school-jobs");
         }
-    };
+
+        setErrorMessage(""); // Clear error state if previously set
+
+    } catch (error) {
+        console.error('Login error:', error);
+
+        if (error.response) {
+            const { status, data } = error.response;
+
+            // Custom error messages based on backend response
+            if (status === 401) {
+                setErrorMessage(data.message || "Invalid email or password.");
+                toast.error(data.message || "Invalid email or password.");
+            } else if (status === 403) {
+                setErrorMessage("Access denied. Please contact support.");
+                toast.error("Access denied. Please contact support.");
+            } else if (status === 500) {
+                setErrorMessage("Internal server error. Try again later.");
+                toast.error("Internal server error. Try again later.");
+            } else {
+                setErrorMessage(data.message || "Login failed. Please try again.");
+                toast.error(data.message || "Login failed. Please try again.");
+            }
+
+        } else if (error.request) {
+            setErrorMessage("No response from server. Please check your internet connection.");
+            toast.error("No response from server. Please check your internet connection.");
+        } else {
+            setErrorMessage(error.message || "Unexpected error occurred.");
+            toast.error(error.message || "Unexpected error occurred.");
+        }
+    }
+};
+
 
     // Handle form input change
     const handleInputChange = (e) => {

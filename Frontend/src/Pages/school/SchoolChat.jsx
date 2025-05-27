@@ -52,7 +52,7 @@ const SchoolChat = () => {
         const response = await api.get(`/messages/${activeChatId}`);
         setChatMessages(response.data);
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        
       }
     };
     fetchMessages();
@@ -69,7 +69,6 @@ const SchoolChat = () => {
       setChatMessages((prev) => [...prev, response.data]);
       setMessage("");
     } catch (error) {
-      console.error("Error sending message:", error);
     }
   };
 

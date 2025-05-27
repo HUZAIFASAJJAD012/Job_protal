@@ -254,7 +254,7 @@ export default function SchoolRegistration() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm pt-4">
+                    <div className="flex items-center justify-between text-xl font-medium pt-4">
                         <p>Fee to sign up is 399QR Per Month</p>
                         <p className="text-black">Cancel when you want</p>
                     </div>

@@ -18,7 +18,7 @@ import {
 import api from "../../Utils/Axios";
 
 // Socket connection setup
-const socket = io("http://localhost:8000", {
+const socket = io("http://16.171.162.180:8000/", {
   transports: ["websocket"],
   withCredentials: true, // critical for CORS when cookies are used
 });
@@ -59,7 +59,6 @@ const UserChat = () => {
       const { data } = await api.get(`/user/get_user_profile/${userId}`);
       return data.profilePicture ? `http://localhost:8000${data.profilePicture}` : null;
     } catch (error) {
-      console.error("Error fetching user profile:", error);
       return null;
     }
   };

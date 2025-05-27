@@ -165,34 +165,7 @@ const JobDetail = () => {
                     {/* Payment Options */}
                     <div className="space-y-4 pt-2">
                         <p className="text-center text-[#2B8A0E]">Pay 15.00 {job.currency}</p>
-                        <div className="flex justify-center gap-4">
-                            <Button
-                                variant="outline"
-                                className="flex w-[120px] items-center justify-center gap-2 rounded-md border border-[#C5BEBE] bg-white px-4 py-2 hover:bg-gray-50"
-                            >
-                                <img
-                                    src="https://img.icons8.com/material-sharp/24/000000/mac-os.png"
-                                    alt="Apple Pay"
-                                    width={20}
-                                    height={20}
-                                    className="h-5 w-5"
-                                />
-                                <span className="text-black">Pay</span>
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="flex w-[120px] items-center justify-center gap-2 rounded-md border border-[#C5BEBE] bg-white px-4 py-2 hover:bg-gray-50"
-                            >
-                                <img
-                                    src="https://img.icons8.com/color/48/000000/google-logo.png"
-                                    alt="Google Pay"
-                                    width={20}
-                                    height={20}
-                                    className="h-5 w-5"
-                                />
-                                <span className="text-black">Pay</span>
-                            </Button>
-                        </div>
+                        
                     </div>
                 </div>
             </main>

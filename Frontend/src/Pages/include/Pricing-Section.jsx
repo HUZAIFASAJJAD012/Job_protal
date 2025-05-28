@@ -25,16 +25,16 @@ export default function PricingSection() {
 
         <div className="grid md:grid-cols-2 gap-6">
           <PricingCard
-            title="JobModel Seekers"
-            description="Find cover teaching jobs easily."
+            title="Job Seekers"
+            description="Find teaching jobs easily."
             price="15"
-            unit="Per JobModel"
+            unit="Per Job"
             features={jobSeekerFeatures}
           />
 
           <PricingCard
             title="Schools"
-            description="Find reliable cover teachers quickly."
+            description="Find reliable teachers quickly."
             price="399"
             unit="Per Month"
             features={schoolFeatures}

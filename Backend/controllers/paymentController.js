@@ -44,7 +44,7 @@ export const createSchoolPaymentSession = async (req, res) => {
       ],
       mode: 'payment',
       success_url: `${process.env.FRONTEND_URL.split(',')[0]}/payment-success`,
-      cancel_url: `${process.env.FRONTEND_URL.split(',')[0]}/payment-cancelled`,
+      cancel_url: `${process.env.FRONTEND_URL.split(',')[0]}/`,
       
       // Use the specific customer we just created
       customer: customer.id,

@@ -38,6 +38,7 @@ import RenewalSuccess from "./Pages/renewal-success";
 import RenewalCancelled from "./Pages/renewal-cancelled";
 import AdminPayments from "./Pages/admin/AdminPayments";
 import Dashboard from "./Pages/admin/Dashboard";
+import EditJob from "./Pages/school/EditJob";
 
 function App() {
   return (
@@ -176,6 +177,16 @@ function App() {
               <SchoolProtected>
                 <SubscriptionProtected>
                   <AddJob />
+                </SubscriptionProtected>
+              </SchoolProtected>
+            }
+          />
+          <Route
+            path="/edit-job/:id"
+            element={
+              <SchoolProtected>
+                <SubscriptionProtected>
+                  <EditJob />
                 </SubscriptionProtected>
               </SchoolProtected>
             }

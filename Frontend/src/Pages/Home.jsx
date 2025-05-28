@@ -78,6 +78,7 @@ function Home() {
                 {/* Slider */}
                 <div
                     className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+                    id="home"
                     style={{
                         backgroundImage: `url(${images[currentIndex]})`,
                         filter: "brightness(0.7)",

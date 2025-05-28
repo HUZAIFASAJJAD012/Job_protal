@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll";
 
 const AboutUs = () => {
     return (
@@ -29,14 +31,15 @@ const AboutUs = () => {
 
                                 {/* Buttons */}
                                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                                    <button
+                                    <Link to="/login-choice"
                                         className="px-6 py-3 bg-green-500 text-white rounded-md font-semibold hover:bg-green-600 transition">
                                         Sign Up Now
-                                    </button>
-                                    <button
-                                        className="px-6 py-3 bg-white text-green-500 border border-green-500 rounded-md font-semibold hover:bg-green-500 hover:text-white transition">
+                                    </Link>
+                                    <ScrollLink to="pricing"
+                                    smooth duration={500}
+                                        className="px-6 py-3 bg-white text-green-500 border border-green-500 rounded-md font-semibold hover:bg-green-500 hover:text-white transition cursor-pointer">
                                         View Our Pricing Plans
-                                    </button>
+                                    </ScrollLink>
                                 </div>
                             </div>
                         </div>

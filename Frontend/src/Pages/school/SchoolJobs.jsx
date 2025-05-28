@@ -239,50 +239,50 @@ export default function SchoolJobs() {
                 <SubscriptionStatus schoolId={UserInfo.id} />
 
                 <div className="space-y-8">
-                    <h2 className="text-2xl font-bold -mb-6">Jobs</h2>
-                    {filteredJobs.length > 0 ? (
-                            filteredJobs.map((job, index) => (
-                                <div key={index} className="bg-[#FFFFFF] rounded-lg p-4 sm:p-6 drop-shadow-lg">
-                                    <Link to={`/school-jobs-applied/${job._id}`}
-                                    >
-                                        < div className="flex flex-col sm:flex-row justify-between gap-4">
-                                            < div className="space-y-1">
-                                                < div>
-                                                    < h3 className="text-base font-semibold leading-none">
-                                                        {job.title}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500 mb-2">{job.subtitle}</p>
-                                                </div>
-                                                <p className="text-sm text-gray-600">
-                                                    Cover from: {new Date(job.coverFrom).toLocaleDateString()} · Cover
-                                                    to: {new Date(job.coverTo).toLocaleDateString()}
-                                                </p>
-                                                <p className="text-sm font-semibold">
-                                                    Total
-                                                    days: {Math.ceil((new Date(job.coverTo) - new Date(job.coverFrom)) / (1000 * 60 * 60 * 24))} days
-                                                </p>
-                                                <p className="text-sm font-semibold">
-                                                    Pay per day: {job.payPerDay}/day {job.currency}
-                                                </p>
-                                                <p className="text-sm text-gray-500">Job ID : {job._id}</p>
-                                            </div>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <span className="text-sm">People Applied</span>
-                                                <span
-                                                    className="bg-[#2B8200] text-white w-12 h-8 flex items-center justify-center rounded-lg text-sm">
-                                                {countAppliedCandidates(job._id)}
-                                            </span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                            ))
-                        ) :
-                        (
-                            <p className="text-sm text-gray-500">No jobs available.</p>
-                        )
-                    }
-                </div>
+  <h2 className="text-2xl font-bold -mb-6">Jobs</h2>
+  {filteredJobs.length > 0 ? (
+    filteredJobs.map((job, index) => (
+      <div key={index} className="bg-[#FFFFFF] rounded-lg p-4 sm:p-6 drop-shadow-lg">
+        <div className="flex flex-col sm:flex-row justify-between gap-4">
+          {/* Job Info */}
+          <div className="space-y-1 flex-1">
+            <Link to={`/school-jobs-applied/${job._id}`}>
+              <h3 className="text-base font-semibold leading-none">{job.title}</h3>
+              <p className="text-sm text-gray-500 mb-2">{job.subtitle}</p>
+              <p className="text-sm text-gray-600">
+                Cover from: {new Date(job.coverFrom).toLocaleDateString()} · Cover to: {new Date(job.coverTo).toLocaleDateString()}
+              </p>
+              <p className="text-sm font-semibold">
+                Total days: {Math.ceil((new Date(job.coverTo) - new Date(job.coverFrom)) / (1000 * 60 * 60 * 24))} days
+              </p>
+              <p className="text-sm font-semibold">
+                Pay per day: {job.payPerDay}/day {job.currency}
+              </p>
+              <p className="text-sm text-gray-500">Job ID : {job._id}</p>
+            </Link>
+          </div>
+
+          {/* People Applied & Edit Button */}
+          <div className="flex flex-col items-center gap-2 min-w-[100px]">
+            <span className="text-sm">People Applied</span>
+            <span className="bg-[#2B8200] text-white w-12 h-8 flex items-center justify-center rounded-lg text-sm">
+              {countAppliedCandidates(job._id)}
+            </span>
+            <Link
+              to={`/edit-job/${job._id}`}
+              className="mt-2 text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Edit
+            </Link>
+          </div>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-sm text-gray-500">No jobs available.</p>
+  )}
+</div>
+
 
                 {/* Chat Section */}
                <ChatInput/>

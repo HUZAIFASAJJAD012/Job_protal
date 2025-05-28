@@ -36,7 +36,7 @@ const Footer = () => {
           </div>
           <ul className="ml-4 mt-4 md:mt-0 space-y-2">
             <li>
-              <Link to="/" className="hover:underline">Home</Link>
+              <ScrollLink to="home" className="hover:underline cursor-pointer" smooth duration={500} >Home</ScrollLink>
             </li>
             <li>
               <ScrollLink to="about-us" smooth duration={500} className="hover:underline cursor-pointer">About Us</ScrollLink>

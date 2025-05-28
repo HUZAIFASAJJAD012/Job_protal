@@ -1,5 +1,5 @@
 import Payment from "../models/paymentModel.js";
-import user from "../models/userModel.js";
+import User from "../models/userModel.js";
 import Profile from "../models/profileModel.js";
 import JobApplied from "../models/appliedJob.js";
 import createError from "../utils/error.js";
@@ -7,90 +7,102 @@ import bcrypt from 'bcryptjs';
 // import lawyerModel from "../models/lawyerModel.js"; // Uncomment if lawyerModel is available
 
 class UserController {
-    static register = async (req, res, next) => {
-        try {
-            const {
-                firstName,
-                lastName,
-                email,
-                phone,
-                password,
-                nationality,
-                residentId,
-                dateOfBirth,
-                country,
-                area,
-                organization,
-                backgroundChecks,
-            } = req.body;
+    static register = async (req, res) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            email,
+            phone,
+            password,
+            nationality = '',
+            residentId = '',
+            dateOfBirth,
+            country,
+            area,
+            organization,
+            backgroundChecks = {}
+        } = req.body;
 
-            const existingUser = await user.findOne({ email });
-            if (existingUser) {
-                return res.status(400).json({ message: "Email already exists" });
-            }
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const newUser = new user({
-                firstName,
-                lastName,
-                email,
-                phone,
-                password: hashedPassword,
-                nationality,
-                residentId,
-                dateOfBirth,
-                country,
-                area,
-                organization,
-                backgroundChecks,
-                isUser: true,
-            });
-
-            const savedUser = await newUser.save();
-
-            const newProfile = new Profile({
-                user: savedUser._id,
-                location: null,
-                bio: null,
-                skills: [],
-                education: [],
-                workHistory: [],
-                availability: { availableDays: [] },
-                profilePicture: null,
-            });
-
-            await newProfile.save();
-
-            const userResponse = {
-                _id: savedUser._id,
-                firstName: savedUser.firstName,
-                lastName: savedUser.lastName,
-                email: savedUser.email,
-            };
-
-            res.status(201).json({ message: "User registered successfully", user: userResponse });
-        } catch (error) {
-            res.status(500).json({ message: error.message });
+        // Basic backend validation
+        if (!firstName || !lastName || !email || !phone || !password || !country || !area || !organization || !dateOfBirth) {
+            return res.status(422).json({ message: "All required fields must be filled" });
         }
-    };
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: "Email already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new User({
+            firstName,
+            lastName,
+            email,
+            phone,
+            password: hashedPassword,
+            nationality,
+            residentId,
+            dateOfBirth,
+            country,
+            area,
+            organization,
+            backgroundChecks,
+            isUser: true,
+        });
+
+        const savedUser = await newUser.save();
+
+        const newProfile = new Profile({
+            user: savedUser._id,
+            location: null,
+            bio: null,
+            skills: [],
+            education: [],
+            workHistory: [],
+            availability: { availableDays: [] },
+            profilePicture: null,
+        });
+
+        await newProfile.save();
+
+        const userResponse = {
+            _id: savedUser._id,
+            firstName: savedUser.firstName,
+            lastName: savedUser.lastName,
+            email: savedUser.email,
+        };
+
+        res.status(201).json({ message: "User registered successfully", user: userResponse });
+
+    } catch (error) {
+        console.error("Registration error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
 
     static getUserById = async (req, res, next) => {
-        try {
-            const { id } = req.params;
-            const userDoc = await user.findById(id);
+    try {
+        const { id } = req.params;
+        const userDoc = await User.findById(id);
 
-            if (!userDoc) {
-                return res.status(404).json({ message: "User not found" });
-            }
-
-            res.status(200).json(userDoc);
-        } catch (error) {
-            console.error("Error fetching user by ID:", error);
-            next(createError(500, "Internal Server Error"));
+        if (!userDoc) {
+            return res.status(404).json({ message: "User not found" });
         }
-    };
 
+        // Find profile by user ID reference
+        const profileDoc = await Profile.findOne({ user: id });
+
+        res.status(200).json({
+            user: userDoc,
+            profile: profileDoc || null
+        });
+    } catch (error) {
+        console.error("Error fetching user by ID:", error);
+        next(createError(500, "Internal Server Error"));
+    }
+};
     static updateUserById = async (req, res, next) => {
         try {
             const { id } = req.params;
@@ -101,7 +113,7 @@ class UserController {
                 updateData.password = hashedPassword;
             }
 
-            const updatedUser = await user.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+            const updatedUser = await User.findByIdAndUpdate(id, { $set: updateData }, { new: true });
 
             if (!updatedUser) {
                 return res.status(404).json({ message: "User not found" });
@@ -166,7 +178,7 @@ class UserController {
 
     static getAllUsers = async (req, res, next) => {
         try {
-            const result = await user.find();
+            const result = await User.find();
 
             if (!result || result.length === 0) {
                 return res.status(404).json({ message: "Sorry, no lawyer is available." });
@@ -197,7 +209,7 @@ class UserController {
     static deleteDocById = async (req, res, next) => {
         console.log("Hit DELETE /delete/:id", req.params.id);
         try {
-            const result = await user.findByIdAndDelete(req.params.id);
+            const result = await User.findByIdAndDelete(req.params.id);
 
             if (!result) {
                 return res.status(404).json({ message: "Document not found" });
@@ -211,7 +223,7 @@ class UserController {
 
     static get_all_information = async (req, res) => {
         try {
-            const users = await user.find();
+            const users = await User.find();
             // const attorneys = await lawyerModel.find(); // Uncomment if lawyerModel is imported
             const transactions = await Payment.find();
 

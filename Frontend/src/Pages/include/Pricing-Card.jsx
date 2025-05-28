@@ -1,12 +1,12 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function PricingCard({
   title,
   description,
   price,
   unit,
-  features
+  features,
 }) {
   return (
     <div className="bg-white rounded-2xl p-8 flex flex-col h-full">
@@ -15,12 +15,12 @@ export default function PricingCard({
 
       <div className="mb-6">
         <div className="text-4xl font-bold mb-1">{price}QR</div>
-        <div className="text-gray-600">Unit: {unit}</div>
+        <div className="text-gray-600">{unit}</div>
       </div>
-<Link to="/login"> 
-      <button className="w-full bg-[#2B7A0B] text-white py-2 rounded-md hover:bg-[#236508] transition-colors mb-7">
-        Sign Up Now
-      </button>
+      <Link to="/login-choice" className="w-full">
+        <button className="w-full bg-[#2B7A0B] text-white py-2 rounded-md hover:bg-[#236508] transition-colors mb-7">
+          Sign Up Now
+        </button>
       </Link>
       <div className="w-full h-px bg-gray-200 mb-3"></div>
 
@@ -33,6 +33,5 @@ export default function PricingCard({
         ))}
       </ul>
     </div>
-  )
+  );
 }
-

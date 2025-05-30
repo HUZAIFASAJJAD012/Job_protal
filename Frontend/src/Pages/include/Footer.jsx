@@ -1,23 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
+import emailjs from "@emailjs/browser";
+import { Store } from "../../Utils/Store"; // Ensure this path is correct
+// adjust this import path as needed
 
 const Footer = () => {
+  const { state } = useContext(Store);
+  const { UserInfo } = state;
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    number: ""
+    number: "",
   });
 
+  // Auto-fill from UserInfo
+  useEffect(() => {
+    if (UserInfo) {
+      setFormData((prev) => ({
+        ...prev,
+        name: UserInfo.name || "",
+        email: UserInfo.email || "",
+      }));
+    }
+  }, [UserInfo]);
+
   const handleInputChange = (e) => {
-    setFormData({...formData, [e.target.name]: e.target.value});
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Replace with logic to store in database
-    console.log("Form submitted:", formData);
-    alert("Thank you for signing up!");
+
+    if (!UserInfo) {
+      alert("Please log in before subscribing to notifications.");
+      return;
+    }
+
+    // Replace with your actual EmailJS values
+    const serviceID = "your_service_id";
+    const templateID = "your_template_id";
+    const publicKey = "your_public_key";
+
+    emailjs.send(serviceID, templateID, formData, publicKey).then(
+      (response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        alert("Thank you for signing up!");
+        setFormData({ name: "", email: "", number: "" });
+      },
+      (error) => {
+        console.error("Email sending error:", error);
+        alert("Failed to send. Please try again later.");
+      }
+    );
   };
 
   return (
@@ -36,27 +72,45 @@ const Footer = () => {
           </div>
           <ul className="ml-4 mt-4 md:mt-0 space-y-2">
             <li>
-              <ScrollLink to="home" className="hover:underline cursor-pointer" smooth duration={500} >Home</ScrollLink>
+              <ScrollLink to="home" className="hover:underline cursor-pointer" smooth duration={500}>
+                Home
+              </ScrollLink>
             </li>
             <li>
-              <ScrollLink to="about-us" smooth duration={500} className="hover:underline cursor-pointer">About Us</ScrollLink>
+              <ScrollLink to="about-us" smooth duration={500} className="hover:underline cursor-pointer">
+                About Us
+              </ScrollLink>
             </li>
             <li>
-        <ScrollLink to="blog" smooth duration={500} className="hover:underline cursor-pointer">
-  Blog
-</ScrollLink>
+              <ScrollLink to="blog" smooth duration={500} className="hover:underline cursor-pointer">
+                Blog
+              </ScrollLink>
             </li>
             <li>
-              <ScrollLink to="contact-us" smooth duration={500} className="hover:underline cursor-pointer">Contact Us</ScrollLink>
+              <ScrollLink to="contact-us" smooth duration={500} className="hover:underline cursor-pointer">
+                Contact Us
+              </ScrollLink>
             </li>
           </ul>
         </div>
 
         {/* Middle Section */}
         <ul className="space-y-2">
-          <li><Link to="/login-choice" className="hover:underline">Login</Link></li>
-          <li><Link to="/user/job-listing" className="hover:underline">User</Link></li>
-          <li><Link to="/school-jobs" className="hover:underline">School</Link></li>
+          <li>
+            <Link to="/login-choice" className="hover:underline">
+              Login
+            </Link>
+          </li>
+          <li>
+            <Link to="/user/job-listing" className="hover:underline">
+              User
+            </Link>
+          </li>
+          <li>
+            <Link to="/school-jobs" className="hover:underline">
+              School
+            </Link>
+          </li>
         </ul>
 
         {/* Right Section: Notification Form */}

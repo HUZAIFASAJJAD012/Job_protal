@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from "../../components/ui/select";
 import { Bookmark } from "lucide-react";
 import Header from "../users/Header";
 import { Link } from "react-router-dom";
@@ -85,7 +92,9 @@ export default function JobSearch() {
   const [filters, setFilters] = useState({
     location: "",
     dailyRate: "",
-    title: ""
+    title: "",
+    area: "",
+    organization: ""
   });
 
   useEffect(() => {
@@ -138,11 +147,11 @@ export default function JobSearch() {
       <div className="w-full max-w-5xl mx-auto px-4 py-4">
         <h1 className="text-xl font-semibold mb-6 text-center sm:text-left">Job Search</h1>
 
-        {/* Search Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="space-y-4">
+        {/* Search Filters */}
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
-              <label htmlFor="location" className="text-sm text-gray-600 mb-1.5 block">
+              <label htmlFor="location" className="text-sm text-gray-600 block mb-1">
                 Location
               </label>
               <Input
@@ -155,7 +164,7 @@ export default function JobSearch() {
               />
             </div>
             <div>
-              <label htmlFor="title" className="text-sm text-gray-600 mb-1.5 block">
+              <label htmlFor="title" className="text-sm text-gray-600 block mb-1">
                 Title
               </label>
               <Input
@@ -167,11 +176,8 @@ export default function JobSearch() {
                 onChange={(e) => handleFilterChange("title", e.target.value)}
               />
             </div>
-          </div>
-
-          <div className="space-y-4">
             <div>
-              <label htmlFor="dailyRate" className="text-sm text-gray-600 mb-1.5 block">
+              <label htmlFor="dailyRate" className="text-sm text-gray-600 block mb-1">
                 Daily Rate
               </label>
               <Input
@@ -182,6 +188,33 @@ export default function JobSearch() {
                 value={filters.dailyRate}
                 onChange={(e) => handleFilterChange("dailyRate", e.target.value)}
               />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600 block mb-1">Area</label>
+              <Select onValueChange={(value) => handleFilterChange("area", value)} value={filters.area}>
+                <SelectTrigger className="w-full h-11 text-base px-3">
+                  <SelectValue placeholder="Choose area" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Math">Math</SelectItem>
+                  <SelectItem value="Science">Science</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm text-gray-600 block mb-1">Organization</label>
+              <Select
+                onValueChange={(value) => handleFilterChange("organization", value)}
+                value={filters.organization}
+              >
+                <SelectTrigger className="w-full h-11 text-base px-3">
+                  <SelectValue placeholder="Choose organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Private">Private</SelectItem>
+                  <SelectItem value="Public">Public</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -194,12 +227,8 @@ export default function JobSearch() {
               filteredJobs.map((job, index) => (
                 <Link
                   key={job._id || index}
-                  to={{
-                    pathname: `/user/job-detail`
-                  }}
-                  state={{
-                    job: job
-                  }}
+                  to={{ pathname: "/user/job-detail" }}
+                  state={{ job: job }}
                 >
                   <JobCard {...job} />
                 </Link>

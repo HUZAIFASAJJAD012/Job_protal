@@ -177,7 +177,18 @@ export default function SchoolJobs() {
     const [appliedCandidate, setAppliedCandidate] = useState([]); // Applied candidates data
     const [conversations, setConversations] = useState([]); // Chat data
     const [searchQuery, setSearchQuery] = useState(""); // For searching jobs
-
+const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+        try {
+            await api.delete(`/school/delete/${id}`);
+            setJobsAvailable(jobsAvailable.filter(job => job._id !== id));
+            alert("Job deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting job:", error);
+            alert("Failed to delete job.");
+        }
+    }
+};
     // Fetch jobs and applied candidates dynamically
     useEffect(() => {
         const fetchJobs = async () => {
@@ -274,6 +285,12 @@ export default function SchoolJobs() {
             >
               Edit
             </Link>
+            <button
+  onClick={() => handleDelete(job._id)}
+  className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+>
+  Delete
+</button>
           </div>
         </div>
       </div>

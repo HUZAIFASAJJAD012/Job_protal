@@ -8,101 +8,103 @@ import bcrypt from 'bcryptjs';
 
 class UserController {
     static register = async (req, res) => {
-    try {
-        const {
-            firstName,
-            lastName,
-            email,
-            phone,
-            password,
-            nationality = '',
-            residentId = '',
-            dateOfBirth,
-            country,
-            area,
-            organization,
-            backgroundChecks = {}
-        } = req.body;
+        try {
+            const {
+                firstName,
+                lastName,
+                email,
+                phone,
+                password,
+                nationality = '',
+                residentId = '',
+                dateOfBirth,
+                country,
+                area,
+                organization,
+                backgroundChecks = {}
+            } = req.body;
 
-        // Basic backend validation
-        if (!firstName || !lastName || !email || !phone || !password || !country || !area || !organization || !dateOfBirth) {
-            return res.status(422).json({ message: "All required fields must be filled" });
+            // Basic backend validation
+            if (!firstName || !lastName || !email || !phone || !password || !country || !area || !organization || !dateOfBirth) {
+                return res.status(422).json({ message: "All required fields must be filled" });
+            }
+
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(409).json({ message: "Email already exists" });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const newUser = new User({
+                firstName,
+                lastName,
+                email,
+                phone,
+                password: hashedPassword,
+                nationality,
+                residentId,
+                dateOfBirth,
+                country,
+                area,
+                organization,
+                backgroundChecks,
+                isUser: true,
+            });
+
+            const savedUser = await newUser.save();
+
+            // Create profile with default availability structure
+            const newProfile = new Profile({
+                user: savedUser._id,
+                location: null,
+                bio: null,
+                skills: [],
+                education: [],
+                workHistory: [],
+                availability: { availableDays: [], startDate: null, endDate: null },
+                profilePicture: null,
+            });
+
+            await newProfile.save();
+
+            const userResponse = {
+                _id: savedUser._id,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+                email: savedUser.email,
+            };
+
+            res.status(201).json({ message: "User registered successfully", user: userResponse });
+
+        } catch (error) {
+            console.error("Registration error:", error);
+            res.status(500).json({ message: "Internal server error" });
         }
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(409).json({ message: "Email already exists" });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            phone,
-            password: hashedPassword,
-            nationality,
-            residentId,
-            dateOfBirth,
-            country,
-            area,
-            organization,
-            backgroundChecks,
-            isUser: true,
-        });
-
-        const savedUser = await newUser.save();
-
-        const newProfile = new Profile({
-            user: savedUser._id,
-            location: null,
-            bio: null,
-            skills: [],
-            education: [],
-            workHistory: [],
-            availability: { availableDays: [] },
-            profilePicture: null,
-        });
-
-        await newProfile.save();
-
-        const userResponse = {
-            _id: savedUser._id,
-            firstName: savedUser.firstName,
-            lastName: savedUser.lastName,
-            email: savedUser.email,
-        };
-
-        res.status(201).json({ message: "User registered successfully", user: userResponse });
-
-    } catch (error) {
-        console.error("Registration error:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
+    };
 
     static getUserById = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const userDoc = await User.findById(id);
+        try {
+            const { id } = req.params;
+            const userDoc = await User.findById(id);
 
-        if (!userDoc) {
-            return res.status(404).json({ message: "User not found" });
+            if (!userDoc) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            // Find profile by user ID reference
+            const profileDoc = await Profile.findOne({ user: id });
+
+            res.status(200).json({
+                user: userDoc,
+                profile: profileDoc || null
+            });
+        } catch (error) {
+            console.error("Error fetching user by ID:", error);
+            next(createError(500, "Internal Server Error"));
         }
+    };
 
-        // Find profile by user ID reference
-        const profileDoc = await Profile.findOne({ user: id });
-
-        res.status(200).json({
-            user: userDoc,
-            profile: profileDoc || null
-        });
-    } catch (error) {
-        console.error("Error fetching user by ID:", error);
-        next(createError(500, "Internal Server Error"));
-    }
-};
     static updateUserById = async (req, res, next) => {
         try {
             const { id } = req.params;
@@ -126,24 +128,23 @@ class UserController {
         }
     };
 
-  static getProfile = async (req, res) => {
-    try {
-        const { id } = req.params;
+    static getProfile = async (req, res) => {
+        try {
+            const { id } = req.params;
 
-        const profile = await Profile.findOne({ user: id })
-            .populate('user', 'firstName lastName email'); // populate user reference with selected fields
+            const profile = await Profile.findOne({ user: id })
+                .populate('user', 'firstName lastName email'); // populate user reference with selected fields
 
-        if (!profile) {
-            return res.status(404).json({ message: "Profile not found" });
+            if (!profile) {
+                return res.status(404).json({ message: "Profile not found" });
+            }
+
+            res.json(profile);
+        } catch (error) {
+            console.error("Error fetching profile:", error);
+            res.status(500).json({ message: "Server error" });
         }
-
-        res.json(profile);
-    } catch (error) {
-        console.error("Error fetching profile:", error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
+    };
 
     static updateProfile = async (req, res) => {
         try {
@@ -155,14 +156,20 @@ class UserController {
                 return res.status(404).json({ message: "Profile not found" });
             }
 
-            Object.assign(profile, {
-                location: location || profile.location,
-                bio: bio || profile.bio,
-                skills: skills ? JSON.parse(skills) : profile.skills,
-                education: education ? JSON.parse(education) : profile.education,
-                workHistory: workHistory ? JSON.parse(workHistory) : profile.workHistory,
-                availability: availability ? JSON.parse(availability) : profile.availability,
-            });
+            // Update profile fields if provided
+            profile.location = location || profile.location;
+            profile.bio = bio || profile.bio;
+            profile.skills = skills ? JSON.parse(skills) : profile.skills;
+            profile.education = education ? JSON.parse(education) : profile.education;
+            profile.workHistory = workHistory ? JSON.parse(workHistory) : profile.workHistory;
+
+            // Availability needs careful handling since it's an object with nested dates
+            if (availability) {
+                const availabilityObj = typeof availability === 'string' ? JSON.parse(availability) : availability;
+                profile.availability.availableDays = availabilityObj.availableDays || profile.availability.availableDays;
+                profile.availability.startDate = availabilityObj.startDate ? new Date(availabilityObj.startDate) : profile.availability.startDate;
+                profile.availability.endDate = availabilityObj.endDate ? new Date(availabilityObj.endDate) : profile.availability.endDate;
+            }
 
             if (req.file) {
                 profile.profilePicture = `/uploads/${req.file.filename}`;
@@ -190,7 +197,7 @@ class UserController {
         }
     };
 
-  static getAllProfiles = async (req, res, next) => {
+    static getAllProfiles = async (req, res, next) => {
         try {
             const result = await Profile.find();
 
@@ -203,8 +210,6 @@ class UserController {
             next(createError(500, "Internal Server Error"));
         }
     }
-
-
 
     static deleteDocById = async (req, res, next) => {
         console.log("Hit DELETE /delete/:id", req.params.id);

@@ -15,5 +15,6 @@ router.post('/apply-job', UserController.jobApplied);
 router.put('/update_user_by_id/:id', UserController.updateUserById);
 router.put('/update_user_profile/:id', upload.single('profilePicture'), UserController.updateProfile);
 router.delete('/delete/:id', UserController.deleteDocById);
+router.get('/user-payments', UserController.getUserPayments);
 
 export default router;

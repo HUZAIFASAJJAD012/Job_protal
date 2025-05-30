@@ -25,7 +25,15 @@ export default function EditProfilePage() {
     bio: "",
     skills: [],
     education: [{ degree: "", institution: "", year: "" }],
-    workHistory: [{ position: "", company: "", startDate: "", endDate: "" }],
+    workHistory: [
+      {
+        position: "",
+        company: "",
+        startDate: "",
+        endDate: "",
+        isCurrentJob: false,
+      },
+    ],
     availability: { availableDays: [], startDate: "", endDate: "" },
   });
 
@@ -42,18 +50,34 @@ export default function EditProfilePage() {
           location: data.location || "",
           bio: data.bio || "",
           skills: data.skills || [],
-          education: data.education.length ? data.education : [{ degree: "", institution: "", year: "" }],
-          workHistory: data.workHistory.length ? data.workHistory : [{ position: "", company: "", startDate: "", endDate: "" }],
+          education: data.education.length
+            ? data.education
+            : [{ degree: "", institution: "", year: "" }],
+          workHistory: data.workHistory.length
+            ? data.workHistory.map((work) => ({
+                ...work,
+                isCurrentJob: work.isCurrentJob || false,
+              }))
+            : [
+                {
+                  position: "",
+                  company: "",
+                  startDate: "",
+                  endDate: "",
+                  isCurrentJob: false,
+                },
+              ],
           availability: {
             availableDays: data.availability?.availableDays || [],
-            // Format dates to YYYY-MM-DD here to remove extra time info
             startDate: formatDate(data.availability?.startDate),
             endDate: formatDate(data.availability?.endDate),
           },
         });
         setPreviewImage(data.profilePicture || "");
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to load profile.");
+        toast.error(
+          error?.response?.data?.message || "Failed to load profile."
+        );
       } finally {
         setLoading(false);
       }
@@ -100,14 +124,15 @@ export default function EditProfilePage() {
   };
 
   const handleNestedChange = (e, index, field, section) => {
-    const { value } = e.target;
+    const { value, type, checked } = e.target;
+    const fieldValue = type === "checkbox" ? checked : value;
+
     setFormData((prev) => {
       const updated = [...prev[section]];
-      updated[index] = { ...updated[index], [field]: value };
+      updated[index] = { ...updated[index], [field]: fieldValue };
       return { ...prev, [section]: updated };
     });
   };
-
   const handleAddNestedField = (section, structure) => {
     setFormData((prev) => ({
       ...prev,
@@ -125,15 +150,20 @@ export default function EditProfilePage() {
 
   return (
     <>
-      <Helmet><title>Edit Profile</title></Helmet>
+      <Helmet>
+        <title>Edit Profile</title>
+      </Helmet>
       <Header />
       <div className="mx-auto p-8 bg-white rounded-xl" style={{ width: "70%" }}>
-        <h1 className="text-2xl font-semibold text-center mb-8">Edit Profile</h1>
+        <h1 className="text-2xl font-semibold text-center mb-8">
+          Edit Profile
+        </h1>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-
           {/* Profile Picture */}
           <div className="col-span-2 space-y-2">
-            <label className="text-sm text-gray-600 font-normal">Profile Picture</label>
+            <label className="text-sm text-gray-600 font-normal">
+              Profile Picture
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -142,7 +172,11 @@ export default function EditProfilePage() {
             />
             {previewImage && (
               <img
-                src={previewImage.startsWith("blob:") ? previewImage : `${server_ip}${previewImage}`}
+                src={
+                  previewImage.startsWith("blob:")
+                    ? previewImage
+                    : `${server_ip}${previewImage}`
+                }
                 alt="Profile Preview"
                 className="mt-2 w-24 h-24 object-cover rounded-full"
               />
@@ -151,7 +185,9 @@ export default function EditProfilePage() {
 
           {/* Location */}
           <div className="col-span-1">
-            <label className="text-sm text-gray-600 font-normal">Location</label>
+            <label className="text-sm text-gray-600 font-normal">
+              Location
+            </label>
             <input
               type="text"
               name="location"
@@ -202,21 +238,27 @@ export default function EditProfilePage() {
                   type="text"
                   placeholder="Degree"
                   value={edu.degree}
-                  onChange={(e) => handleNestedChange(e, index, "degree", "education")}
+                  onChange={(e) =>
+                    handleNestedChange(e, index, "degree", "education")
+                  }
                   className="px-4 py-2 bg-[#F5F5F5] rounded-md"
                 />
                 <input
                   type="text"
                   placeholder="Institution"
                   value={edu.institution}
-                  onChange={(e) => handleNestedChange(e, index, "institution", "education")}
+                  onChange={(e) =>
+                    handleNestedChange(e, index, "institution", "education")
+                  }
                   className="px-4 py-2 bg-[#F5F5F5] rounded-md"
                 />
                 <input
                   type="number"
                   placeholder="Year"
                   value={edu.year}
-                  onChange={(e) => handleNestedChange(e, index, "year", "education")}
+                  onChange={(e) =>
+                    handleNestedChange(e, index, "year", "education")
+                  }
                   className="px-4 py-2 bg-[#F5F5F5] rounded-md"
                 />
               </div>
@@ -224,7 +266,11 @@ export default function EditProfilePage() {
             <button
               type="button"
               onClick={() =>
-                handleAddNestedField("education", { degree: "", institution: "", year: "" })
+                handleAddNestedField("education", {
+                  degree: "",
+                  institution: "",
+                  year: "",
+                })
               }
               className="text-blue-500 text-sm underline"
             >
@@ -236,33 +282,87 @@ export default function EditProfilePage() {
           <div className="col-span-2 space-y-3">
             <h2 className="text-lg font-semibold">Work History</h2>
             {formData.workHistory.map((work, index) => (
-              <div key={index} className="grid grid-cols-4 gap-3">
-                <input
-                  type="text"
-                  placeholder="Position"
-                  value={work.position}
-                  onChange={(e) => handleNestedChange(e, index, "position", "workHistory")}
-                  className="px-4 py-2 bg-[#F5F5F5] rounded-md"
-                />
-                <input
-                  type="text"
-                  placeholder="Company"
-                  value={work.company}
-                  onChange={(e) => handleNestedChange(e, index, "company", "workHistory")}
-                  className="px-4 py-2 bg-[#F5F5F5] rounded-md"
-                />
-                <input
-                  type="date"
-                  value={work.startDate ? formatDate(work.startDate) : ""}
-                  onChange={(e) => handleNestedChange(e, index, "startDate", "workHistory")}
-                  className="px-4 py-2 bg-[#F5F5F5] rounded-md"
-                />
-                <input
-                  type="date"
-                  value={work.endDate ? formatDate(work.endDate) : ""}
-                  onChange={(e) => handleNestedChange(e, index, "endDate", "workHistory")}
-                  className="px-4 py-2 bg-[#F5F5F5] rounded-md"
-                />
+              <div
+                key={index}
+                className="space-y-3 p-4 border border-gray-200 rounded-md"
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="Position"
+                    value={work.position}
+                    onChange={(e) =>
+                      handleNestedChange(e, index, "position", "workHistory")
+                    }
+                    className="px-4 py-2 bg-[#F5F5F5] rounded-md"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Company"
+                    value={work.company}
+                    onChange={(e) =>
+                      handleNestedChange(e, index, "company", "workHistory")
+                    }
+                    className="px-4 py-2 bg-[#F5F5F5] rounded-md"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm text-gray-600">Start Date</label>
+                    <input
+                      type="date"
+                      value={work.startDate ? formatDate(work.startDate) : ""}
+                      onChange={(e) =>
+                        handleNestedChange(e, index, "startDate", "workHistory")
+                      }
+                      className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md"
+                    />
+                  </div>
+                  {!work.isCurrentJob && (
+                    <div>
+                      <label className="text-sm text-gray-600">End Date</label>
+                      <input
+                        type="date"
+                        value={work.endDate ? formatDate(work.endDate) : ""}
+                        onChange={(e) =>
+                          handleNestedChange(e, index, "endDate", "workHistory")
+                        }
+                        className="w-full px-4 py-2 bg-[#F5F5F5] rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`current-job-${index}`}
+                    checked={work.isCurrentJob || false}
+                    onChange={(e) => {
+                      handleNestedChange(
+                        e,
+                        index,
+                        "isCurrentJob",
+                        "workHistory"
+                      );
+                      // Clear end date when marking as current job
+                      if (e.target.checked) {
+                        handleNestedChange(
+                          { target: { value: "" } },
+                          index,
+                          "endDate",
+                          "workHistory"
+                        );
+                      }
+                    }}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor={`current-job-${index}`}
+                    className="text-sm text-gray-600"
+                  >
+                    I currently work here
+                  </label>
+                </div>
               </div>
             ))}
             <button
@@ -273,6 +373,7 @@ export default function EditProfilePage() {
                   company: "",
                   startDate: "",
                   endDate: "",
+                  isCurrentJob: false, // Add this field
                 })
               }
               className="text-blue-500 text-sm underline"

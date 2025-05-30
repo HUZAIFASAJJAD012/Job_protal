@@ -13,7 +13,7 @@ const Sidebar = () => {
         };
         return (
             <>
-                <div className="w-64 bg-gray-900 text-white h-screen p-4 ">
+                <div className="w-64 bg-gray-900 text-white h-screen p-4 fixed">
                     <Avatar className="h-25 w-11 m-4 mx-auto">
                         <div className="w-12 h-12 bg-gray-200 rounded-full">
                             <img

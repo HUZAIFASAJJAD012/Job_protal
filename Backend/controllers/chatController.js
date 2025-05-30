@@ -1,9 +1,10 @@
 import Chat from "../models/Chat.js";
+import Message from "../models/Message.js";
 import { School } from "../models/schoolModel.js";
 import User from "../models/userModel.js";
 
 /**
- * Get all user chats
+ * Get all user chats with unread counts and last message info
  */
 export const getUserChats = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ export const getUserChats = async (req, res) => {
 
     const chats = await Chat.find({ members: userId });
 
-    // Fetch chat members (User or School)
+    // Fetch chat members and additional info
     const chatData = await Promise.all(
       chats.map(async (chat) => {
         // Find the recipient (the other person in the chat)
@@ -30,6 +31,18 @@ export const getUserChats = async (req, res) => {
           );
         }
 
+        // Get the last message in this chat
+        const lastMessage = await Message.findOne({ chatId: chat._id })
+          .sort({ timestamp: -1 })
+          .populate('sender', 'firstName lastName schoolName');
+
+        // Get unread message count for this user
+        const unreadCount = await Message.countDocuments({
+          chatId: chat._id,
+          sender: { $ne: userId },
+          isRead: false
+        });
+
         return {
           _id: chat._id,
           recipientName: recipientData
@@ -38,6 +51,14 @@ export const getUserChats = async (req, res) => {
               : recipientData.schoolName
             : "Unknown",
           members: chat.members,
+          lastMessage: lastMessage ? {
+            content: lastMessage.content,
+            timestamp: lastMessage.timestamp,
+            sender: lastMessage.sender,
+            isRead: lastMessage.isRead
+          } : null,
+          unreadCount,
+          createdAt: chat.createdAt
         };
       })
     );
@@ -66,7 +87,7 @@ export const createConversation = async (req, res) => {
     }
 
     // Create a new chat if it doesn't exist
-    chat = new Chat({ members, recipientName });
+    chat = new Chat({ members });
     await chat.save();
 
     res.status(201).json(chat);
@@ -75,4 +96,3 @@ export const createConversation = async (req, res) => {
     res.status(500).json({ error: "Error creating conversation" });
   }
 };
-

@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const profileSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId, // Reference to the User model
-      ref: 'User', // Name of the user model (assuming it is named 'User')
+      ref: "User", // Name of the user model (assuming it is named 'User')
       required: true,
     },
     location: {
@@ -34,6 +34,7 @@ const profileSchema = new mongoose.Schema(
         company: { type: String, trim: true, default: null },
         startDate: { type: Date, default: null },
         endDate: { type: Date, default: null }, // Nullable for ongoing work
+        isCurrentJob: { type: Boolean, default: false }, // Add this field
       },
     ],
     availability: {
@@ -61,4 +62,4 @@ const profileSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model('Profile', profileSchema);
+export default mongoose.model("Profile", profileSchema);

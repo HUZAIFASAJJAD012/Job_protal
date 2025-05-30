@@ -20,6 +20,8 @@ const Header = () => {
         <>
             <header className="flex items-center justify-between border-b bg-[#ECF0FA] px-4 sm:px-6 py-4 relative">
                 {/* Logo */}
+                <Link to="/">
+                
                 <Avatar className="h-11 w-11">
                     <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
                         <img
@@ -29,10 +31,12 @@ const Header = () => {
                         />
                     </div>
                 </Avatar>
+                </Link>
+
 
                 {/* Desktop Nav */}
                 <nav className="hidden md:flex space-x-4 lg:space-x-8">
-                    <Link to="/"><Button variant="ghost">Home</Button></Link>
+                    <Link to="/school-jobs"><Button variant="ghost">Home</Button></Link>
                     <Link to="/school-jobs"><Button variant="ghost">Job</Button></Link>
                     <Link to="/school-settings"><Button variant="ghost">Settings</Button></Link>
                 </nav>

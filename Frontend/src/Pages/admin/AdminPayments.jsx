@@ -5,7 +5,7 @@ import api from "../../Utils/Axios"; // Make sure this is your axios instance
 const AdminPayments = () => {
   const [activeTab, setActiveTab] = useState('user');
   const [schools, setSchools] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [userPayments, setUserPayments] = useState([]);
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -17,29 +17,28 @@ const AdminPayments = () => {
       }
     };
 
-  const fetchUsers = async () => {
+    const fetchUserPayments = async () => {
       try {
-        const response = await api.get("/user/get_all_users");
-        const data = response.data || [];
-        setUsers(data);
+        const response = await api.get("/user/user-payments");
+        setUserPayments(response.data || []);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching user payments:", error);
       }
     };
 
     fetchSchools();
-    fetchUsers();
+    fetchUserPayments();
   }, []);
 
-  const userPayments = users.map((user, index) => ({
+  // Use the populated user data directly from payments
+  const userPaymentsList = userPayments.map((payment, index) => ({
     id: index + 1,
-    name: `${user.firstName} ${user.lastName}`,
-    email: user.email,
-    amount: user.fee ?? 0,
-    status: user.subscriptionActive ? 'Paid' : 'Pending',
-    date: user.subscriptionExpiryDate
-      ? new Date(user.subscriptionExpiryDate).toISOString().slice(0, 10)
-      : 'N/A',
+    name: payment.user ? `${payment.user.firstName} ${payment.user.lastName}` : 'Unknown User',
+    email: payment.user ? payment.user.email : 'N/A',
+    amount: payment.amount,
+    status: payment.status === 'completed' ? 'Paid' : 'Pending',
+    date: new Date(payment.paymentDate).toISOString().slice(0, 10),
+    type: payment.type
   }));
 
   const schoolPayments = schools.map((school, index) => ({
@@ -53,13 +52,14 @@ const AdminPayments = () => {
       : 'N/A',
   }));
 
-  const payments = activeTab === 'user' ? userPayments : schoolPayments;
+  const payments = activeTab === 'user' ? userPaymentsList : schoolPayments;
 
+  // Rest of your component stays the same...
   return (
     <div className="flex">
       <Sidebar />
 
-      <div className="p-6 min-w-screen bg-gray-100 flex-1">
+      <div className="p-6  bg-gray-100  w-[calc(100vw-264px)] ml-[264px]">
         <h1 className="text-2xl font-bold mb-4">Admin Payments</h1>
 
         <div className="flex gap-4 mb-6">

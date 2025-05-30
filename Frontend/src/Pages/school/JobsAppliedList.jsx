@@ -117,9 +117,18 @@ export default function JobsAppliedList() {
   });
 
   const handleSelect = (selectedUserId) => {
-    navigate(`/school-jobs`, { state: { selectedUserId } });
-  };
-
+  // Store the selected user info in localStorage before navigating
+  const selectedProfile = filteredProfiles.find(profile => profile.user === selectedUserId);
+  const selectedUserName = userIdToNameMap[selectedUserId] || "Unknown";
+  
+  localStorage.setItem('selectedUser', JSON.stringify({
+    id: selectedUserId,
+    name: selectedUserName,
+    profile: selectedProfile
+  }));
+  
+  navigate(`/school-jobs`, { state: { selectedUserId } });
+};
   return (
     <>
       <Header />

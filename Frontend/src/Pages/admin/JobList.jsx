@@ -51,7 +51,7 @@ const JobList = () => {
             <Sidebar/>
 
             {/* Main Content */}
-            <div className="flex-1 bg-gray-100 p-8">
+            <div className=" bg-gray-100 p-8 w-[calc(100vw-264px)] ml-[264px] ">
                 <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Job List</h1>
 
                 {/* Job Table */}

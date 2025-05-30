@@ -107,30 +107,85 @@ const startServer = async () => {
       console.log(`User ${userId} joined their room`);
     });
 
-    socket.on('send_message', async ({ sender, receiver, content }) => {
-      try {
-        let chat = await Chat.findOne({ members: { $all: [sender, receiver] } });
+   // Replace your socket.on('send_message') handler with this:
 
-        if (!chat) {
-          chat = new Chat({ members: [sender, receiver] });
-          await chat.save();
-        }
+socket.on('send_message', async ({ sender, receiver, content, conversationId }) => {
+  try {
+    let chat;
+    
+    if (conversationId) {
+      // Use existing conversation
+      chat = await Chat.findById(conversationId);
+    } else {
+      // Find or create new conversation
+      chat = await Chat.findOne({ members: { $all: [sender, receiver] } });
+      
+      if (!chat) {
+        chat = new Chat({ members: [sender, receiver] });
+        await chat.save();
+      }
+    }
 
-        const newMessage = new Message({
-          chatId: chat._id,
-          sender,
-          content
+    const newMessage = new Message({
+      chatId: chat._id,
+      sender,
+      content,
+      timestamp: new Date(),
+      isRead: false // Important: messages start as unread
+    });
+
+    await newMessage.save();
+
+    // Create the message object to send to clients
+    const messageToSend = {
+      _id: newMessage._id,
+      chatId: newMessage.chatId,
+      sender: newMessage.sender,
+      content: newMessage.content,
+      timestamp: newMessage.timestamp,
+      isRead: newMessage.isRead,
+      conversationId: chat._id // This is crucial for frontend
+    };
+
+    // Send to both sender and receiver
+    io.to(receiver).emit('receive_message', messageToSend);
+    io.to(sender).emit('receive_message', messageToSend);
+    
+    console.log(`Message sent from ${sender} to ${receiver}: ${content}`);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    socket.emit('message_error', { error: 'Failed to send message' });
+  }
+});
+// Add this to your backend app.js socket handlers:
+
+socket.on('message_read', async ({ messageId, readBy, conversationId }) => {
+  try {
+    // Update message as read in database
+    await Message.findByIdAndUpdate(messageId, { 
+      isRead: true,
+      $push: { readBy: { userId: readBy, readAt: new Date() } }
+    });
+
+    // Find the chat to get both members
+    const chat = await Chat.findById(conversationId);
+    
+    // Send read receipt to the original sender
+    chat.members.forEach(memberId => {
+      if (memberId.toString() !== readBy.toString()) {
+        io.to(memberId.toString()).emit('message_read', {
+          messageId,
+          readBy,
+          conversationId
         });
-
-        await newMessage.save();
-
-        io.to(receiver).emit('receive_message', newMessage);
-        io.to(sender).emit('receive_message', newMessage);
-      } catch (error) {
-        console.error('Error sending message:', error);
       }
     });
 
+    console.log(`Message ${messageId} marked as read by ${readBy}`);
+  } catch (error) {
+    console.error('Error handling message read:', error);
+  }
+});
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
     });

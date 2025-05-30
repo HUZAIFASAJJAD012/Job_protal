@@ -4,8 +4,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar"
 import Header from "../users/Header";
 import { Link } from "react-router-dom";
 import api from "../../Utils/Axios";
-import { Store } from "../../Utils/Store"; // Assuming Store contains UserInfo
-import { server_ip } from "../../Utils/Data"; // <-- Your backend URL
+import { Store } from "../../Utils/Store";
+import { server_ip } from "../../Utils/Data"; // optional if you're using jobImage from backend
 
 // Job Card Component
 const JobCard = ({
@@ -26,7 +26,7 @@ const JobCard = ({
   jobDurationType,
   timeStart,
   timeEnd,
-  jobImage,  // Using jobImage from backend
+  jobImage,
 }) => {
   return (
     <Link
@@ -119,7 +119,6 @@ export default function JobListings() {
         const response = await api.get("/school/get/applied-candidate");
         const allAppliedJobs = response.data || [];
 
-        // Filter applied jobs for current user
         const filteredJobsApplied = allAppliedJobs.filter(
           (appliedJob) => appliedJob.user === UserInfo.id
         );
@@ -136,10 +135,18 @@ export default function JobListings() {
     }
   }, [UserInfo]);
 
-  // Filter out jobs user has already applied for
+  // Filter out expired and already applied jobs
   const filteredJobsAvailable = jobsAvailable.filter(
-    (job) => !jobsApplied.some((appliedJob) => appliedJob.job === job._id)
+    (job) =>
+      new Date(job.coverTo) >= new Date() &&
+      !jobsApplied.some((appliedJob) => appliedJob.job === job._id)
   );
+
+  // Filter out expired jobs in applied section (optional but useful)
+  const validJobsApplied = jobsApplied.filter((appliedJob) => {
+    const jobDetails = jobsAvailable.find((job) => job._id === appliedJob.job);
+    return jobDetails && new Date(jobDetails.coverTo) >= new Date();
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -176,8 +183,8 @@ export default function JobListings() {
           <section>
             <h2 className="text-lg font-semibold mb-3">Jobs Applied</h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {jobsApplied.length > 0 ? (
-                jobsApplied.map((appliedJob) => {
+              {validJobsApplied.length > 0 ? (
+                validJobsApplied.map((appliedJob) => {
                   const jobDetails = jobsAvailable.find(
                     (job) => job._id === appliedJob.job
                   );

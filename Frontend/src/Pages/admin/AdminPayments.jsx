@@ -11,6 +11,7 @@ const AdminPayments = () => {
     const fetchSchools = async () => {
       try {
         const response = await api.get('/school/get-all-school');
+        console.log('Fetched schools:', response.data);
         setSchools(response.data || []);
       } catch (error) {
         console.error('Error fetching schools:', error);

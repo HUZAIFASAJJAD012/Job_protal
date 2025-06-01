@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import detect from 'detect-port';
-
+import notificationRoutes from './routes/notificationRoutes.js';
 // Import routes
 import user from './routes/user.js';
 import school from './routes/school.js';
@@ -73,7 +73,7 @@ app.use('/auth', authentication);
 app.use('/rating', Rating);
 app.use('/conversations', conversations);
 app.use('/messages', messages);
-
+app.use('/notifications', notificationRoutes);
 // Error handler
 app.use((err, req, res, next) => {
   const errorStatus = err.status || 500;

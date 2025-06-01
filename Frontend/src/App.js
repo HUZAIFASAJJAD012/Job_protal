@@ -39,6 +39,7 @@ import RenewalCancelled from "./Pages/renewal-cancelled";
 import AdminPayments from "./Pages/admin/AdminPayments";
 import Dashboard from "./Pages/admin/Dashboard";
 import EditJob from "./Pages/school/EditJob";
+import AdminNotificationPage from "./Pages/admin/AdminNotificationPage";
 
 function App() {
   return (
@@ -223,12 +224,22 @@ function App() {
               </SchoolProtected>
             }
           />
+          
           {/* Admin Routes */}
           <Route
             path="/admin/dashboard"
             element={
               <AdminProtected>
 <Dashboard />              </AdminProtected>
+            }
+          />
+          
+          <Route
+            path="/admin/notifications"
+            element={
+              <AdminProtected>
+                <AdminNotificationPage/>
+              </AdminProtected>
             }
           />
           <Route

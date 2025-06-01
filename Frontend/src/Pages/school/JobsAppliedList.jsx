@@ -21,34 +21,34 @@ function ProfileCard({
 
   return (
     <div className="flex items-center justify-between py-4 px-6 rounded-lg drop-shadow-sm bg-white w-full">
-     <Link to={`/school-user-profile/${id}`} className="flex items-start gap-4">
-  <img
-    src={imageUrl}
-    alt={name}
-    className="w-20 h-20 rounded-full object-cover"
-  />
-  <div className="space-y-2">
-    <h3 className="text-base font-semibold text-gray-900">{name}</h3>
-    <div className="space-y-0.5 text-sm">
-      <div className="flex items-center gap-1">
-        <span className="text-gray-500">Availability:</span>
-        <span className="text-gray-700">{availableDays}</span>
-      </div>
-      <div className="flex items-center gap-1">
-        <span className="text-gray-500">Date Available from:</span>
-        <span className="text-gray-700">{dateFrom}</span>
-      </div>
-      <div className="flex items-center gap-1">
-        <span className="text-gray-500">Date Available to:</span>
-        <span className="text-gray-700">{dateTo}</span>
-      </div>
-      <div className="flex items-center gap-1">
-        <span className="text-gray-500">Jobs Completed:</span>
-        <span className="text-gray-900 font-medium">{jobsCompleted}</span>
-      </div>
-    </div>
-  </div>
-</Link>
+      <Link to={`/school-user-profile/${id}`} className="flex items-start gap-4">
+        <img
+          src={imageUrl}
+          alt={name}
+          className="w-20 h-20 rounded-full object-cover"
+        />
+        <div className="space-y-2">
+          <h3 className="text-base font-semibold text-gray-900">{name}</h3>
+          <div className="space-y-0.5 text-sm">
+            <div className="flex items-center gap-1">
+              <span className="text-gray-500">Availability:</span>
+              <span className="text-gray-700">{availableDays}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-500">Date Available from:</span>
+              <span className="text-gray-700">{dateFrom}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-500">Date Available to:</span>
+              <span className="text-gray-700">{dateTo}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-500">Jobs Completed:</span>
+              <span className="text-gray-900 font-medium">{jobsCompleted}</span>
+            </div>
+          </div>
+        </div>
+      </Link>
 
       <button
         className="px-16 py-3 bg-[#2B8200] hover:bg-[#2B7A0B] text-white text-sm font-medium rounded-md transition-colors"
@@ -110,25 +110,52 @@ export default function JobsAppliedList() {
     candidatesForJob.some((candidate) => candidate.user === profile.user)
   );
 
-  // Create a userId -> name map
   const userIdToNameMap = {};
   allUsers.forEach((user) => {
     userIdToNameMap[user._id] = user.name;
   });
 
-  const handleSelect = (selectedUserId) => {
-  // Store the selected user info in localStorage before navigating
-  const selectedProfile = filteredProfiles.find(profile => profile.user === selectedUserId);
-  const selectedUserName = userIdToNameMap[selectedUserId] || "Unknown";
-  
-  localStorage.setItem('selectedUser', JSON.stringify({
-    id: selectedUserId,
-    name: selectedUserName,
-    profile: selectedProfile
-  }));
-  
+  const handleSelect = async (selectedUserId) => {
+  const selectedProfile = filteredProfiles.find(
+    (profile) => profile.user === selectedUserId
+  );
+
+  const selectedUser = allUsers.find((user) => user._id === selectedUserId);
+
+  const selectedUserName = selectedUser?.name || "Unknown";
+  const selectedEmail = selectedUser?.email || "example@email.com";
+  const selectedPhone = selectedUser?.phone || "0000000000";
+
+  // Send notification API
+  try {
+    await api.post("/notifications/send-selected", {
+      userId: selectedUserId,
+      jobId,
+      name: selectedUserName,
+      email: selectedEmail,
+      phone: selectedPhone,
+      message: `Congratulations ${selectedUserName}, you have been selected for the job.`,
+    });
+  } catch (error) {
+    console.error("Error sending notification:", error);
+  }
+
+  // Store selected user info and navigate
+  localStorage.setItem(
+    "selectedUser",
+    JSON.stringify({
+      id: selectedUserId,
+      name: selectedUserName,
+      email: selectedEmail,
+      phone: selectedPhone,
+      profile: selectedProfile,
+    })
+  );
+
   navigate(`/school-jobs`, { state: { selectedUserId } });
 };
+
+
   return (
     <>
       <Header />

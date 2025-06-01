@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
-import emailjs from "@emailjs/browser";
-import { Store } from "../../Utils/Store"; // Ensure this path is correct
-// adjust this import path as needed
+import { Store } from "../../Utils/Store"; // Adjust path as needed
+import api from "../../Utils/Axios"; // Axios instance with baseURL setup
 
 const Footer = () => {
   const { state } = useContext(Store);
@@ -12,48 +11,78 @@ const Footer = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    number: "",
+    phone: "",
   });
 
-  // Auto-fill from UserInfo
+  // status can be 'none' (no application), 'pending' (applied but not approved), 'approved'
+  const [notificationStatus, setNotificationStatus] = useState("none");
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     if (UserInfo) {
-      setFormData((prev) => ({
-        ...prev,
+      setFormData({
         name: UserInfo.name || "",
         email: UserInfo.email || "",
-      }));
+        phone: "",
+      });
+
+      const checkApproval = async () => {
+        try {
+          setLoading(true);
+          const res = await api.get(`/notifications/status/${UserInfo.id}`);
+          setNotificationStatus(res.data.status || "none");
+        } catch (error) {
+          console.error("Failed to fetch approval status", error);
+          setNotificationStatus("none");
+        } finally {
+          setLoading(false);
+        }
+      };
+      checkApproval();
+    } else {
+      setNotificationStatus("none");
+      setLoading(false);
+      setFormData({ name: "", email: "", phone: "" });
     }
   }, [UserInfo]);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!UserInfo) {
-      alert("Please log in before subscribing to notifications.");
+      alert("Please log in before subscribing.");
       return;
     }
 
-    // Replace with your actual EmailJS values
-    const serviceID = "your_service_id";
-    const templateID = "your_template_id";
-    const publicKey = "your_public_key";
+    if (notificationStatus === "approved") {
+      alert("You are already approved and subscribed.");
+      return;
+    }
 
-    emailjs.send(serviceID, templateID, formData, publicKey).then(
-      (response) => {
-        console.log("Email sent successfully!", response.status, response.text);
-        alert("Thank you for signing up!");
-        setFormData({ name: "", email: "", number: "" });
-      },
-      (error) => {
-        console.error("Email sending error:", error);
-        alert("Failed to send. Please try again later.");
-      }
-    );
+    if (notificationStatus === "pending") {
+      alert("You have already applied and are waiting for approval.");
+      return;
+    }
+
+    try {
+      await api.post("/notifications", {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        userId: UserInfo.id,
+      });
+
+      alert("Request sent! Please wait for admin approval.");
+      setFormData({ name: "", email: "", phone: "" });
+      setNotificationStatus("pending"); // update local status
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      alert("Failed to send. Try again.");
+    }
   };
 
   return (
@@ -72,22 +101,42 @@ const Footer = () => {
           </div>
           <ul className="ml-4 mt-4 md:mt-0 space-y-2">
             <li>
-              <ScrollLink to="home" className="hover:underline cursor-pointer" smooth duration={500}>
+              <ScrollLink
+                to="home"
+                className="hover:underline cursor-pointer"
+                smooth
+                duration={500}
+              >
                 Home
               </ScrollLink>
             </li>
             <li>
-              <ScrollLink to="about-us" smooth duration={500} className="hover:underline cursor-pointer">
+              <ScrollLink
+                to="about-us"
+                smooth
+                duration={500}
+                className="hover:underline cursor-pointer"
+              >
                 About Us
               </ScrollLink>
             </li>
             <li>
-              <ScrollLink to="blog" smooth duration={500} className="hover:underline cursor-pointer">
+              <ScrollLink
+                to="blog"
+                smooth
+                duration={500}
+                className="hover:underline cursor-pointer"
+              >
                 Blog
               </ScrollLink>
             </li>
             <li>
-              <ScrollLink to="contact-us" smooth duration={500} className="hover:underline cursor-pointer">
+              <ScrollLink
+                to="contact-us"
+                smooth
+                duration={500}
+                className="hover:underline cursor-pointer"
+              >
                 Contact Us
               </ScrollLink>
             </li>
@@ -116,41 +165,54 @@ const Footer = () => {
         {/* Right Section: Notification Form */}
         <div className="w-full max-w-xs">
           <h3 className="mb-4 font-semibold">Sign Up for Notifications</h3>
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Enter your name"
-              className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Enter your email"
-              className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            />
-            <input
-              type="text"
-              name="number"
-              value={formData.number}
-              onChange={handleInputChange}
-              placeholder="Enter number"
-              className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            />
-            <button
-              type="submit"
-              className="w-full bg-[#FFCC00] text-black font-semibold py-2 px-4 rounded-lg hover:bg-yellow-400 transition-colors"
-            >
-              Confirm & Subscribe
-            </button>
-          </form>
+
+          {loading ? (
+            <p>Loading status...</p>
+          ) : notificationStatus === "approved" ? (
+            <p className="bg-green-100 text-green-800 p-3 rounded">
+              You are already approved for notifications.
+            </p>
+          ) : notificationStatus === "pending" ? (
+            <p className="bg-yellow-100 text-yellow-800 p-3 rounded">
+              You have already applied and are waiting for approval.
+            </p>
+          ) : (
+            <form className="space-y-3" onSubmit={handleSubmit}>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Enter your name"
+                className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+              />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+              />
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="Enter phone number"
+                className="w-full px-4 py-2 bg-green-100 text-black rounded-lg border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+              />
+              <button
+                type="submit"
+                className="w-full bg-[#FFCC00] text-black font-semibold py-2 px-4 rounded-lg hover:bg-yellow-400 transition-colors"
+              >
+                Confirm & Subscribe
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </footer>

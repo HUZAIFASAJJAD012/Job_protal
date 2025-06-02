@@ -15,8 +15,8 @@ const AdminNotificationPage = () => {
     fetchPending();
   };
 
-  const select = async (id) => {
-    await api.put(`/notifications/select/${id}`);
+  const reject = async (id) => {
+    await api.put(`/notifications/reject/${id}`);
     fetchPending();
   };
 
@@ -46,10 +46,10 @@ const AdminNotificationPage = () => {
                   Approve
                 </button>
                 <button
-                  onClick={() => select(n._id)}
+                  onClick={() => reject(n._id)}
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
-                  Select
+                  reject
                 </button>
               </div>
             </div>

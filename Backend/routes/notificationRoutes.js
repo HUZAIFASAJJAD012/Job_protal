@@ -3,7 +3,7 @@ import {
   createNotification,
   getPendingNotifications,
   approveNotification,
-  selectNotification,
+  rejectNotification,
   getUserNotifications,
   getNotificationStatus,
   sendUserSelectedNotification,
@@ -14,7 +14,7 @@ const router = express.Router();
 router.post('/', createNotification);
 router.get('/pending', getPendingNotifications);
 router.put('/approve/:id', approveNotification);
-router.put('/select/:id', selectNotification);
+router.put('/reject/:id', rejectNotification);
 router.get('/status/:userId', getNotificationStatus);
 router.get('/user/:userId', getUserNotifications);
 router.post('/send-selected', sendUserSelectedNotification);

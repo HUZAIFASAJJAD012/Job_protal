@@ -86,11 +86,11 @@ export const approveNotification = async (req, res) => {
   res.status(200).json({ success: true });
 };
 // Select a notification by ID (update status to 'selected')
-export const selectNotification = async (req, res) => {
+export const rejectNotification = async (req, res) => {
   try {
     const notification = await Notification.findByIdAndUpdate(
       req.params.id,
-      { status: 'selected' },
+      { status: 'rejected' },
       { new: true }
     );
 
@@ -98,10 +98,10 @@ export const selectNotification = async (req, res) => {
       return res.status(404).json({ message: 'Notification not found' });
     }
 
-    return res.json({ message: 'Notification selected', notification });
+    return res.json({ message: 'Notification rejected', notification });
   } catch (error) {
-    console.error('Error selecting notification:', error);
-    return res.status(500).json({ message: 'Failed to select notification' });
+    console.error('Error rejecting notification:', error);
+    return res.status(500).json({ message: 'Failed to reject notification' });
   }
 };
 

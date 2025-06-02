@@ -68,6 +68,11 @@ const Footer = () => {
       return;
     }
 
+    if (notificationStatus === "rejected") {
+      alert("You have been rejected.");
+      return;
+    }
+
     try {
       await api.post("/notifications", {
         name: formData.name,
@@ -176,7 +181,11 @@ const Footer = () => {
             <p className="bg-yellow-100 text-yellow-800 p-3 rounded">
               You have already applied and are waiting for approval.
             </p>
-          ) : (
+          ) :notificationStatus === "rejected" ? (
+            <p className="bg-yellow-100 text-red-600 p-3 rounded">
+              You have been rejected by admin for notifications.
+            </p>
+          ): (
             <form className="space-y-3" onSubmit={handleSubmit}>
               <input
                 type="text"

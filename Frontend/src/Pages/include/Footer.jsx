@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
-import { Store } from "../../Utils/Store"; // Adjust path as needed
-import api from "../../Utils/Axios"; // Axios instance with baseURL setup
+import { Store } from "../../Utils/Store"; // Adjust path if needed
+import api from "../../Utils/Axios";
 
 const Footer = () => {
   const { state } = useContext(Store);
@@ -14,81 +14,34 @@ const Footer = () => {
     phone: "",
   });
 
-  // status can be 'none' (no application), 'pending' (applied but not approved), 'approved'
-  const [notificationStatus, setNotificationStatus] = useState("none");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (UserInfo) {
-      setFormData({
-        name: UserInfo.name || "",
-        email: UserInfo.email || "",
-        phone: "",
-      });
-
-      const checkApproval = async () => {
-        try {
-          setLoading(true);
-          const res = await api.get(`/notifications/status/${UserInfo.id}`);
-          setNotificationStatus(res.data.status || "none");
-        } catch (error) {
-          console.error("Failed to fetch approval status", error);
-          setNotificationStatus("none");
-        } finally {
-          setLoading(false);
-        }
-      };
-      checkApproval();
-    } else {
-      setNotificationStatus("none");
-      setLoading(false);
-      setFormData({ name: "", email: "", phone: "" });
-    }
-  }, [UserInfo]);
-
   const handleInputChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!UserInfo) {
-      alert("Please log in before subscribing.");
-      return;
+  try {
+    await api.post("/notifications", {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      userId: UserInfo?.id || null,
+    });
+
+    alert("Thanks for subscribing to our newsletter!");
+    setFormData({ name: "", email: "", phone: "" });
+  } catch (error) {
+    const msg = error?.response?.data?.message;
+
+    if (msg === "Subscription already exists for this email.") {
+      alert("You are already subscribed with this email.");
+    } else {
+      console.error("Subscription failed:", error);
+      alert("Subscription failed. Please try again.");
     }
-
-    if (notificationStatus === "approved") {
-      alert("You are already approved and subscribed.");
-      return;
-    }
-
-    if (notificationStatus === "pending") {
-      alert("You have already applied and are waiting for approval.");
-      return;
-    }
-
-    if (notificationStatus === "rejected") {
-      alert("You have been rejected.");
-      return;
-    }
-
-    try {
-      await api.post("/notifications", {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        userId: UserInfo.id,
-      });
-
-      alert("Request sent! Please wait for admin approval.");
-      setFormData({ name: "", email: "", phone: "" });
-      setNotificationStatus("pending"); // update local status
-    } catch (error) {
-      console.error("Error sending notification:", error);
-      alert("Failed to send. Try again.");
-    }
-  };
+  }
+};
 
   return (
     <footer className="bg-[#005502] text-white py-10">
@@ -99,49 +52,27 @@ const Footer = () => {
             <img
               src="/logo.jpg"
               alt="Parkhouse English School"
-              width={64}
-              height={64}
               className="h-full w-full rounded-full object-cover"
             />
           </div>
           <ul className="ml-4 mt-4 md:mt-0 space-y-2">
             <li>
-              <ScrollLink
-                to="home"
-                className="hover:underline cursor-pointer"
-                smooth
-                duration={500}
-              >
+              <ScrollLink to="home" className="hover:underline cursor-pointer" smooth duration={500}>
                 Home
               </ScrollLink>
             </li>
             <li>
-              <ScrollLink
-                to="about-us"
-                smooth
-                duration={500}
-                className="hover:underline cursor-pointer"
-              >
+              <ScrollLink to="about-us" className="hover:underline cursor-pointer" smooth duration={500}>
                 About Us
               </ScrollLink>
             </li>
             <li>
-              <ScrollLink
-                to="blog"
-                smooth
-                duration={500}
-                className="hover:underline cursor-pointer"
-              >
+              <ScrollLink to="blog" className="hover:underline cursor-pointer" smooth duration={500}>
                 Blog
               </ScrollLink>
             </li>
             <li>
-              <ScrollLink
-                to="contact-us"
-                smooth
-                duration={500}
-                className="hover:underline cursor-pointer"
-              >
+              <ScrollLink to="contact-us" className="hover:underline cursor-pointer" smooth duration={500}>
                 Contact Us
               </ScrollLink>
             </li>
@@ -150,42 +81,20 @@ const Footer = () => {
 
         {/* Middle Section */}
         <ul className="space-y-2">
-          <li>
-            <Link to="/login-choice" className="hover:underline">
-              Login
-            </Link>
-          </li>
-          <li>
-            <Link to="/user/job-listing" className="hover:underline">
-              User
-            </Link>
-          </li>
-          <li>
-            <Link to="/school-jobs" className="hover:underline">
-              School
-            </Link>
-          </li>
+          <li><Link to="/login-choice" className="hover:underline">Login</Link></li>
+          <li><Link to="/user/job-listing" className="hover:underline">User</Link></li>
+          <li><Link to="/school-jobs" className="hover:underline">School</Link></li>
         </ul>
 
-        {/* Right Section: Notification Form */}
+        {/* Right Section: Newsletter */}
         <div className="w-full max-w-xs">
-          <h3 className="mb-4 font-semibold">Sign Up for Notifications</h3>
+          <h3 className="mb-4 font-semibold">Sign Up for Newsletter</h3>
 
-          {loading ? (
-            <p>Loading status...</p>
-          ) : notificationStatus === "approved" ? (
+          {UserInfo ? (
             <p className="bg-green-100 text-green-800 p-3 rounded">
-              You are already approved for notifications.
+              You are already subscribed to our newsletter.
             </p>
-          ) : notificationStatus === "pending" ? (
-            <p className="bg-yellow-100 text-yellow-800 p-3 rounded">
-              You have already applied and are waiting for approval.
-            </p>
-          ) :notificationStatus === "rejected" ? (
-            <p className="bg-yellow-100 text-red-600 p-3 rounded">
-              You have been rejected by admin for notifications.
-            </p>
-          ): (
+          ) : (
             <form className="space-y-3" onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -218,7 +127,7 @@ const Footer = () => {
                 type="submit"
                 className="w-full bg-[#FFCC00] text-black font-semibold py-2 px-4 rounded-lg hover:bg-yellow-400 transition-colors"
               >
-                Confirm & Subscribe
+                Subscribe
               </button>
             </form>
           )}

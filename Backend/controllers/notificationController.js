@@ -5,25 +5,41 @@ import mongoose from 'mongoose';
 export const createNotification = async (req, res) => {
   const { name, email, phone, userId } = req.body;
 
-  if (!name || !email || !phone || !userId) {
-    return res.status(400).json({ message: 'All fields (name, email, phone, userId) are required.' });
+  // Validate required fields (excluding userId)
+  if (!name || !email || !phone) {
+    return res.status(400).json({ message: 'Name, email, and phone are required.' });
   }
 
   try {
-    // Check if notification already exists for this userId
-    const existing = await Notification.findOne({ userId });
+    // Check if a subscription with the same email already exists
+    const existing = await Notification.findOne({ email });
     if (existing) {
-      return res.status(400).json({ message: 'Notification request already exists for this user.' });
+      return res.status(400).json({ message: 'Subscription already exists for this email.' });
     }
 
-    const notification = new Notification({ name, email, phone, userId, status: 'pending' });
+    // Create the notification object
+    const notificationData = {
+      name,
+      email,
+      phone,
+      status: 'pending',
+    };
+
+    // Only add userId if provided
+    if (userId) {
+      notificationData.userId = userId;
+    }
+
+    const notification = new Notification(notificationData);
     await notification.save();
-    return res.status(201).json({ message: 'Notification created successfully', notification });
+
+    return res.status(201).json({ message: 'Subscription created successfully', notification });
   } catch (error) {
-    console.error('Error creating notification:', error);
+    console.error('Error creating subscription:', error);
     return res.status(500).json({ message: 'Server error while creating notification' });
   }
 };
+
 export const getNotificationStatus = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -68,6 +84,7 @@ export const sendUserSelectedNotification = async (req, res) => {
 export const getPendingNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ status: 'pending' });
+    
     return res.json(notifications);
   } catch (error) {
     console.error('Error fetching pending notifications:', error);

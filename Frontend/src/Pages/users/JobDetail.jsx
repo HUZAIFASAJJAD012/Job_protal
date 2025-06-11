@@ -13,6 +13,7 @@ const JobDetail = () => {
   const { UserInfo } = state;
   const location = useLocation();
   const [job, setJob] = useState(location.state?.job || null);
+  console.log("Job details from state:", job);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -47,7 +48,6 @@ const JobDetail = () => {
         setHasApplied(false); // fallback to allow showing the button
       }
     };
-
     checkIfApplied();
   }, [UserInfo, job]);
 
@@ -157,31 +157,103 @@ const JobDetail = () => {
 
             <div className="mt-4 space-y-2">
               <h2 className="text-lg font-semibold">Qualifications</h2>
-              <div className="space-y-1">
-                {job.qualifications?.length > 0 ? (
-                  job.qualifications.map((qual, index) => (
-                    <p className="text-gray-600" key={index}>
-                      {qual}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-gray-600">No specific qualifications required</p>
-                )}
+              <div className="space-y-2">
+                {(() => {
+                  let qualifications = job.qualifications;
+                  
+                  if (!qualifications || qualifications.length === 0) {
+                    return <p className="text-gray-600 italic">No specific qualifications required</p>;
+                  }
+                  
+                  let processedQualifications = [];
+                  
+                  qualifications.forEach(qual => {
+                    if (typeof qual === 'string') {
+                      // Check if it's JSON-encoded (starts with [ or ")
+                      if (qual.startsWith('["') || qual.startsWith('[')) {
+                        try {
+                          const parsed = JSON.parse(qual);
+                          if (Array.isArray(parsed)) {
+                            processedQualifications.push(...parsed);
+                          } else {
+                            processedQualifications.push(parsed);
+                          }
+                        } catch {
+                          // If parsing fails, use as is
+                          processedQualifications.push(qual);
+                        }
+                      } else {
+                        // Regular string, use as is
+                        processedQualifications.push(qual);
+                      }
+                    } else {
+                      processedQualifications.push(qual);
+                    }
+                  });
+                  
+                  return processedQualifications.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      {processedQualifications.map((qual, index) => (
+                        <li className="text-gray-700 text-sm leading-relaxed" key={index}>
+                          {String(qual).trim()}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-600 italic">No specific qualifications required</p>
+                  );
+                })()}
               </div>
             </div>
 
             <div className="mt-4 space-y-2">
               <h2 className="text-lg font-semibold">Background Checks</h2>
-              <div className="space-y-1">
-                {job.backgroundChecks?.length > 0 ? (
-                  job.backgroundChecks.map((check, index) => (
-                    <p className="text-gray-600" key={index}>
-                      {check}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-gray-600">No background checks required</p>
-                )}
+              <div className="space-y-2">
+                {(() => {
+                  let backgroundChecks = job.backgroundChecks;
+                  
+                  if (!backgroundChecks || backgroundChecks.length === 0) {
+                    return <p className="text-gray-600 italic">No background checks required</p>;
+                  }
+                  
+                  let processedBackgroundChecks = [];
+                  
+                  backgroundChecks.forEach(check => {
+                    if (typeof check === 'string') {
+                      // Check if it's JSON-encoded (starts with [ or ")
+                      if (check.startsWith('["') || check.startsWith('[')) {
+                        try {
+                          const parsed = JSON.parse(check);
+                          if (Array.isArray(parsed)) {
+                            processedBackgroundChecks.push(...parsed);
+                          } else {
+                            processedBackgroundChecks.push(parsed);
+                          }
+                        } catch {
+                          // If parsing fails, use as is
+                          processedBackgroundChecks.push(check);
+                        }
+                      } else {
+                        // Regular string, use as is
+                        processedBackgroundChecks.push(check);
+                      }
+                    } else {
+                      processedBackgroundChecks.push(check);
+                    }
+                  });
+                  
+                  return processedBackgroundChecks.length > 0 ? (
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      {processedBackgroundChecks.map((check, index) => (
+                        <li className="text-gray-700 text-sm leading-relaxed" key={index}>
+                          {String(check).trim()}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-600 italic">No background checks required</p>
+                  );
+                })()}
               </div>
             </div>
           </Card>

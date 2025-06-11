@@ -28,6 +28,8 @@ router.post('/add/job', upload.single('jobImage'), schoolController.addJob); // 
 router.delete('/delete/:id', schoolController.deleteDocById);
 router.delete('/scdelete/:id', schoolController.deletescById);
 router.delete('/remove-application/:jobId/:userId', schoolController.removeApplication);
+// Add this new route for selecting candidates
+router.put('/select-candidate/:jobId/:userId', schoolController.selectCandidate);
 
 
 export default router;

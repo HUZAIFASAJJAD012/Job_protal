@@ -309,6 +309,37 @@ class schoolController {
       });
     }
   };
+
+  static selectCandidate = async (req, res) => {
+    try {
+      const { jobId, userId } = req.params;
+      
+      // Update the application status to 'selected'
+      const result = await JobApplied.findOneAndUpdate(
+        { job: jobId, user: userId },
+        { 
+          status: 'selected',
+          selectedAt: new Date()
+        },
+        { new: true }
+      );
+
+      if (!result) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      res.status(200).json({ 
+        message: "Candidate selected successfully",
+        application: result 
+      });
+    } catch (error) {
+      console.error("Error selecting candidate:", error);
+      res.status(500).json({ 
+        message: "Internal server error", 
+        error: error.message 
+      });
+    }
+  };
 }
 
 export default schoolController;

@@ -35,7 +35,7 @@ const Header = () => {
 
         {/* Center: Desktop Navigation */}
         <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 space-x-4">
-          <Link to="/"><Button variant="ghost">Home</Button></Link>
+          <Link to="/user/job-listing"><Button variant="ghost">Home</Button></Link>
           <Link to="/user/job-listing"><Button variant="ghost">Job</Button></Link>
           <Link to="/user-profile"><Button variant="ghost">Profile</Button></Link>
           <Link to="/user-chat"><Button variant="ghost">Chat</Button></Link>

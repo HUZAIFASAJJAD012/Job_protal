@@ -1,70 +1,390 @@
-# Getting Started with Create React App
+# Job Portal Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern React-based job portal frontend with real-time chat, payment integration, and responsive design.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- User and School dashboards
+- Job search and application system
+- Real-time chat with Socket.IO
+- Stripe payment integration
+- Responsive design with Tailwind CSS
+- File upload capabilities
+- Admin panel
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Node.js (v14 or higher)
+- npm or yarn
+- Git
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd "Job Portal/Frontend"
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **Install dependencies**
+   ```bash
+   npm install
+   # OR
+   yarn install
+   ```
 
-### `npm run build`
+3. **Environment Setup**
+   
+   Create a `.env` file in the root directory:
+   ```env
+   # API Configuration
+   REACT_APP_API_URL=http://localhost:8000
+   
+   # Stripe (Public Key)
+   REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+   
+   # Socket.IO
+   REACT_APP_SOCKET_URL=http://localhost:8000
+   
+   # App Configuration
+   REACT_APP_NAME="Job Portal"
+   REACT_APP_VERSION=1.0.0
+   
+   # For production
+   # REACT_APP_API_URL=https://your-backend-domain.com
+   # REACT_APP_SOCKET_URL=https://your-backend-domain.com
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Running the Application
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. **Development Mode**
+   ```bash
+   npm start
+   # OR
+   yarn start
+   ```
+   
+   Opens the app at `http://localhost:3000`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. **Production Build**
+   ```bash
+   npm run build
+   # OR
+   yarn build
+   ```
 
-### `npm run eject`
+3. **Test Build Locally**
+   ```bash
+   npm install -g serve
+   serve -s build -l 3000
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+Frontend/
+├── public/                 # Static files
+│   ├── index.html         # Main HTML template
+│   └── logo.jpg           # App logo
+├── src/
+│   ├── components/        # Reusable components
+│   │   └── ui/           # UI components
+│   ├── Pages/            # Page components
+│   │   ├── admin/        # Admin pages
+│   │   ├── school/       # School pages
+│   │   ├── users/        # User pages
+│   │   └── include/      # Shared components
+│   ├── Utils/            # Utility functions
+│   │   ├── Store.js      # Global state management
+│   │   ├── Axios.jsx     # API configuration
+│   │   └── APIRoutes.js  # API endpoints
+│   ├── Security/         # Route protection
+│   ├── Errors/           # Error pages
+│   ├── App.js           # Main app component
+│   └── index.js         # App entry point
+├── package.json         # Dependencies
+└── README.md           # This file
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Key Dependencies
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **React 18** - Frontend framework
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Styling framework
+- **Socket.IO Client** - Real-time communication
+- **Axios** - HTTP client
+- **React Toastify** - Notifications
+- **Lucide React** - Icons
 
-## Learn More
+## Environment Configuration
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Development Environment
+```env
+REACT_APP_API_URL=http://localhost:8000
+REACT_APP_SOCKET_URL=http://localhost:8000
+REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_your_test_key
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Production Environment
+```env
+REACT_APP_API_URL=https://your-backend-domain.com
+REACT_APP_SOCKET_URL=https://your-backend-domain.com
+REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_key
+```
 
-### Code Splitting
+## Key Features Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 1. Authentication System
+- JWT token management
+- Role-based routing (User/School/Admin)
+- Protected routes
+- Automatic logout on token expiry
 
-### Analyzing the Bundle Size
+### 2. Payment Integration
+- Stripe checkout integration
+- Job application payments
+- School subscription management
+- Payment history tracking
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 3. Real-time Chat
+- Socket.IO integration
+- Private messaging
+- Message status indicators
+- Online/offline status
 
-### Making a Progressive Web App
+### 4. File Upload
+- Profile picture uploads
+- Job image uploads
+- File validation and preview
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## API Integration
 
-### Advanced Configuration
+The frontend communicates with the backend through:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Base Configuration (Utils/Axios.jsx)
+```javascript
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+  timeout: 5000,
+  withCredentials: true,
+});
+```
 
-### Deployment
+### Key API Endpoints
+- Authentication: `/auth/login`
+- User management: `/user/*`
+- School management: `/school/*`
+- Payment processing: `/api/payment/*`
+- Chat: `/messages/*`, `/conversations/*`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## State Management
 
-### `npm run build` fails to minify
+Global state is managed using React Context (Utils/Store.js):
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```javascript
+// Available actions
+- SetUserInfo - Store user data
+- ClearUserInfo - Clear user data on logout
+```
+
+## Routing Structure
+
+### Public Routes
+- `/` - Home page
+- `/login-choice` - Login selection
+- `/login` - Login form
+- `/user-registration` - User registration
+- `/school-registration` - School registration
+
+### Protected Routes
+- **User Routes** (`/user/*`)
+  - Job listings, applications, profile, chat
+- **School Routes** (`/school/*`)
+  - Dashboard, job management, applicant management
+- **Admin Routes** (`/admin/*`)
+  - User management, system overview
+
+## Styling
+
+### Tailwind CSS Configuration
+- Custom colors for brand consistency
+- Responsive breakpoints
+- Component-based styling
+- Dark mode support (if needed)
+
+### Custom Components
+Located in `src/components/ui/`:
+- Button, Card, Avatar, Input
+- Form components
+- Modal, Dialog components
+
+## Testing
+
+### Running Tests
+```bash
+npm test
+# OR
+yarn test
+```
+
+### Testing Strategy
+- Component unit tests
+- Integration tests for user flows
+- E2E tests for critical paths
+
+## Deployment
+
+### Netlify Deployment
+```bash
+# Build the project
+npm run build
+
+# Deploy to Netlify
+# Drag and drop the build folder to Netlify
+# OR use Netlify CLI
+npm install -g netlify-cli
+netlify deploy --prod --dir=build
+```
+
+### Vercel Deployment
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy
+vercel --prod
+```
+
+### Custom Server Deployment
+```bash
+# Build the project
+npm run build
+
+# Serve with any static file server
+# Example with Apache/Nginx
+cp -r build/* /var/www/html/
+```
+
+## Environment Variables for Production
+
+```env
+# Production API endpoints
+REACT_APP_API_URL=https://api.yourdomain.com
+REACT_APP_SOCKET_URL=https://api.yourdomain.com
+
+# Production Stripe key
+REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_key
+
+# Additional production settings
+GENERATE_SOURCEMAP=false
+REACT_APP_NODE_ENV=production
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **API Connection Failed**
+   ```bash
+   # Check if backend is running
+   curl http://localhost:8000/api/health
+   
+   # Verify REACT_APP_API_URL in .env
+   echo $REACT_APP_API_URL
+   ```
+
+2. **CORS Errors**
+   - Ensure backend FRONTEND_URL includes your frontend URL
+   - Check withCredentials setting in axios config
+
+3. **Socket.IO Connection Issues**
+   ```javascript
+   // Check browser console for socket errors
+   // Verify REACT_APP_SOCKET_URL matches backend
+   ```
+
+4. **Payment Issues**
+   ```bash
+   # Verify Stripe keys
+   echo $REACT_APP_STRIPE_PUBLISHABLE_KEY
+   
+   # Check Stripe console for webhook events
+   ```
+
+5. **Build Failures**
+   ```bash
+   # Clear cache
+   npm start -- --reset-cache
+   
+   # Delete node_modules and reinstall
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+### Performance Optimization
+
+1. **Code Splitting**
+   ```javascript
+   // Use React.lazy for route-based splitting
+   const UserDashboard = React.lazy(() => import('./Pages/users/Dashboard'));
+   ```
+
+2. **Image Optimization**
+   - Compress images before upload
+   - Use appropriate image formats (WebP, AVIF)
+   - Implement lazy loading
+
+3. **Bundle Analysis**
+   ```bash
+   npm install -g webpack-bundle-analyzer
+   npm run build
+   npx webpack-bundle-analyzer build/static/js/*.js
+   ```
+
+## Security Best Practices
+
+1. **Environment Variables**
+   - Never commit `.env` files
+   - Use different keys for development/production
+   - Validate API responses
+
+2. **Input Validation**
+   - Sanitize user inputs
+   - Validate file uploads
+   - Implement rate limiting on forms
+
+3. **Authentication**
+   - Store tokens securely
+   - Implement auto-logout
+   - Validate user permissions
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## Support
+
+For development issues:
+1. Check browser console for errors
+2. Verify environment variables
+3. Check network tab for API calls
+4. Review backend logs
+5. Test with different browsers
+
+## Additional Resources
+
+- [React Documentation](https://reactjs.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Socket.IO Client Documentation](https://socket.io/docs/v4/client-api)
+- [Stripe React Integration](https://stripe.com/docs/stripe-js/react)

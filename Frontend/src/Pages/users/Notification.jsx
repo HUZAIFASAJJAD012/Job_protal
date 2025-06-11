@@ -53,7 +53,7 @@ export default function Notifications() {
 
   // Fetch jobs only if user is approved
   useEffect(() => {
-    if (!userApproved) return;
+    // if (!userApproved) return;
 
     const fetchJobs = async () => {
       setLoadingJobs(true);
@@ -76,8 +76,8 @@ export default function Notifications() {
 
   // Click handler to open job details via navigation
   const handleNotificationClick = (notification) => {
-    const job = jobs.find((j) => j._id === notification.job);
-
+    const job = jobs.find((j) => j._id === notification.jobId);
+    
     if (job) {
       navigate("/user/job-detail", {
         state: { job },

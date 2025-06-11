@@ -67,7 +67,6 @@ function Home() {
 
             return matchKeyword && matchLocation;
         });
-
         setFilteredJobs(filtered);
     };
 

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
 import { Store } from "../../Utils/Store"; // Adjust path if needed
@@ -13,6 +13,29 @@ const Footer = () => {
     email: "",
     phone: "",
   });
+  
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(false);
+
+  // Check subscription status when user is logged in
+  useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      if (UserInfo?.id) {
+        setCheckingSubscription(true);
+        try {
+          const response = await api.get(`/notifications/check/${UserInfo.id}`);
+          setIsSubscribed(response.data.isSubscribed);
+        } catch (error) {
+          console.error("Error checking subscription:", error);
+          setIsSubscribed(false);
+        } finally {
+          setCheckingSubscription(false);
+        }
+      }
+    };
+
+    checkSubscriptionStatus();
+  }, [UserInfo]);
 
   const handleInputChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -90,7 +113,11 @@ const Footer = () => {
         <div className="w-full max-w-xs">
           <h3 className="mb-4 font-semibold">Sign Up for Newsletter</h3>
 
-          {UserInfo ? (
+          {checkingSubscription ? (
+            <p className="bg-blue-100 text-blue-800 p-3 rounded">
+              Checking subscription status...
+            </p>
+          ) : UserInfo && isSubscribed ? (
             <p className="bg-green-100 text-green-800 p-3 rounded">
               You are already subscribed to our newsletter.
             </p>

@@ -116,45 +116,57 @@ export default function JobsAppliedList() {
   });
 
   const handleSelect = async (selectedUserId) => {
-  const selectedProfile = filteredProfiles.find(
-    (profile) => profile.user === selectedUserId
-  );
+    const selectedProfile = filteredProfiles.find(
+      (profile) => profile.user === selectedUserId
+    );
 
-  const selectedUser = allUsers.find((user) => user._id === selectedUserId);
+    const selectedUser = allUsers.find((user) => user._id === selectedUserId);
 
-  const selectedUserName = selectedUser?.name || "Unknown";
-  const selectedEmail = selectedUser?.email || "example@email.com";
-  const selectedPhone = selectedUser?.phone || "0000000000";
+    const selectedUserName = selectedUser?.name || "Unknown";
+    const selectedEmail = selectedUser?.email || "example@email.com";
+    const selectedPhone = selectedUser?.phone || "0000000000";
 
-  // Send notification API
-  try {
-    await api.post("/notifications/send-selected", {
-      userId: selectedUserId,
-      jobId,
-      name: selectedUserName,
-      email: selectedEmail,
-      phone: selectedPhone,
-      message: `Congratulations ${selectedUserName}, you have been selected for the job.`,
-    });
-  } catch (error) {
-    console.error("Error sending notification:", error);
-  }
+    try {
+      // Send notification API
+      await api.post("/notifications/send-selected", {
+        userId: selectedUserId,
+        jobId,
+        name: selectedUserName,
+        email: selectedEmail,
+        phone: selectedPhone,
+        message: `Congratulations ${selectedUserName}, you have been selected for the job.`,
+      });
 
-  // Store selected user info and navigate
-  localStorage.setItem(
-    "selectedUser",
-    JSON.stringify({
-      id: selectedUserId,
-      name: selectedUserName,
-      email: selectedEmail,
-      phone: selectedPhone,
-      profile: selectedProfile,
-    })
-  );
+      // Remove the selected candidate from the applied candidates list
+      // This assumes you have a backend endpoint to remove the application
+      await api.delete(`/school/remove-application/${jobId}/${selectedUserId}`);
 
-  navigate(`/school-jobs`, { state: { selectedUserId } });
-};
+      // Update local state to immediately remove the user from the UI
+      setAppliedCandidate((prevCandidates) =>
+        prevCandidates.filter(
+          (candidate) => !(candidate.job === jobId && candidate.user === selectedUserId)
+        )
+      );
 
+      // Store selected user info and navigate
+      localStorage.setItem(
+        "selectedUser",
+        JSON.stringify({
+          id: selectedUserId,
+          name: selectedUserName,
+          email: selectedEmail,
+          phone: selectedPhone,
+          profile: selectedProfile,
+        })
+      );
+
+      alert(`${selectedUserName} has been selected and removed from the list.`);
+      navigate(`/school-jobs`, { state: { selectedUserId } });
+    } catch (error) {
+      console.error("Error in selection process:", error);
+      alert("Failed to select candidate. Please try again.");
+    }
+  };
 
   return (
     <>

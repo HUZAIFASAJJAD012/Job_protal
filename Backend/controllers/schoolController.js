@@ -282,6 +282,33 @@ class schoolController {
         .json({ message: "Internal server error", error: error.message });
     }
   };
+
+  static removeApplication = async (req, res) => {
+    try {
+      const { jobId, userId } = req.params;
+      
+      // Remove the application from the database
+      const result = await JobApplied.findOneAndDelete({ 
+        job: jobId, 
+        user: userId 
+      });
+
+      if (!result) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      res.status(200).json({ 
+        message: "Application removed successfully",
+        removedApplication: result 
+      });
+    } catch (error) {
+      console.error("Error removing application:", error);
+      res.status(500).json({ 
+        message: "Internal server error", 
+        error: error.message 
+      });
+    }
+  };
 }
 
 export default schoolController;

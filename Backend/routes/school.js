@@ -27,6 +27,7 @@ router.post('/update/:id', updatecheck, schoolController.update);
 router.post('/add/job', upload.single('jobImage'), schoolController.addJob); // Updated to handle file upload
 router.delete('/delete/:id', schoolController.deleteDocById);
 router.delete('/scdelete/:id', schoolController.deletescById);
+router.delete('/remove-application/:jobId/:userId', schoolController.removeApplication);
 
 
 export default router;
